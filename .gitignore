@@ -1,3 +1,7 @@
+# The auxiliary directories
+Docs/*
+data/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
