@@ -39,7 +39,10 @@ class TestDeepTreeMethods(unittest.TestCase):
         
     def test_subtrees(self):
         subtrees = self.root.subtrees()
-        self.assertEqual(len(subtrees), 28, "Subtrees in the ROOT")
+        self.assertEqual(len(subtrees), 82, "Subtrees in the ROOT [min_childs = 1]")
+        
+        subtrees = self.root.subtrees(min_childs = 2)
+        self.assertEqual(len(subtrees), 28, "Subtrees in the ROOT [min_childs = 2]")
     
     def test_np_subtrees(self):
         subtrees = self.root.subtrees()
@@ -48,7 +51,11 @@ class TestDeepTreeMethods(unittest.TestCase):
             if st.name == 'NP':
                 np_subtrees += 1
                 
-        self.assertEqual(np_subtrees, 8, "NP Subtrees in the ROOT")
+        self.assertEqual(np_subtrees, 13, "NP Subtrees in the ROOT")
+        
+    def test_deepNPSubtrees(self):
+        subtrees = self.root.deepNPSubtrees()
+        self.assertEqual(len(subtrees), 11, "Deep NP Subtrees in the ROOT")
         
     def test_leaves_with_pos(self):
         leaves = self.root.leavesWithPOS('DT')
@@ -86,7 +93,9 @@ class TestShallowTreeMethods(unittest.TestCase):
         
     def test_subtrees(self):
         subtrees = self.root.subtrees()
-        self.assertEqual(len(subtrees), 2, "Subtrees in the ROOT")
+        self.assertEqual(len(subtrees), 19, "Subtrees in the ROOT [min_childs = 1]")
+        subtrees = self.root.subtrees(min_childs = 2)
+        self.assertEqual(len(subtrees), 2, "Subtrees in the ROOT [min_childs = 2]")
     
     def test_np_subtrees(self):
         subtrees = self.root.subtrees()
@@ -95,7 +104,11 @@ class TestShallowTreeMethods(unittest.TestCase):
             if st.name == 'NP':
                 np_subtrees += 1
                 
-        self.assertEqual(np_subtrees, 1, "NP Subtrees in the ROOT")
+        self.assertEqual(np_subtrees, 4, "NP Subtrees in the ROOT")
+        
+    def test_deepNPSubtrees(self):
+        subtrees = self.root.deepNPSubtrees()
+        self.assertEqual(len(subtrees), 4, "Deep NP Subtrees in the ROOT")
         
     def test_leaves_with_pos(self):
         leaves = self.root.leavesWithPOS('DT')

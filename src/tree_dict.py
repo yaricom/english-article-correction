@@ -37,11 +37,13 @@ class SNode(object):
         """
         return [n for n in walk(self) if n.isLeaf() and n.pos == pos]
     
-    def subtrees(self):
+    def subtrees(self, min_childs = 1):
         """
         Returns all subtrees in this node
+        Arguments:
+            min_childs: the minimal number of childs per tree
         """
-        return [n for n in walk(self) if len(n.children) > 1]
+        return [n for n in walk(self) if n.isLeaf() == False and len(n.children) >= min_childs]
     
     def dpaSubtrees(self):
         """
@@ -57,6 +59,25 @@ class SNode(object):
                 
         return dpa_trees
                 
+    def deepNPSubtrees(self):
+        """
+        Returns list of deep NP subtrees which is the shortest ones inside complex NP
+        """
+        np_subtrees = list()
+        subtrees = self.subtrees()
+        for st in subtrees:
+            if st.name == 'NP':
+                if any(child.name == 'NP' for child in st.children):
+                    # Intermediate NP
+                    dpa_subtrees = st.dpaSubtrees() # N.B. can be optimized by direct check
+                    if len(dpa_subtrees) == 0:
+                        # Add NP as whole
+                        np_subtrees.append(st)
+                else:
+                    # Deepest NP
+                    np_subtrees.append(st)
+                
+        return np_subtrees
         
         
     def isLeaf(self):
@@ -173,7 +194,7 @@ def treeStringFromDict(d):
 if __name__ == "__main__":
     with open("../data/parse_train.txt") as f:
         data = json.load(f)
-    tree_str = json.dumps(data[1])
+    tree_str = json.dumps(data[1]) # 723
     print(tree_str)
     tree =  json.loads(tree_str)
     acc = treeStringFromDict(tree['children'][0])
@@ -207,6 +228,12 @@ if __name__ == "__main__":
             for l in st.leaves():
                 printNode(l)
     
+    print("+++++++++++++++++++++ Deep NP Subtrees")
+    subtrees = root.deepNPSubtrees()
+    for st in subtrees:
+        print("---")
+        for l in st.leaves():
+            printNode(l)
 
     print("+++++++++++++++++++++ Leaves with POS")
     leaves = root.leavesWithPOS('DT')
