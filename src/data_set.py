@@ -12,6 +12,8 @@ import json
 import numpy as np
 
 import tree_dict as td
+from utils import POS
+
 
 def __read_json(file):
     """
@@ -36,10 +38,16 @@ def extractFeatures(node, features, row, glove):
     """
     """
     Features map:
-    DT index | NN(S) index | types between DT and NN | 
-    CC | CD	| DT	| EX	 | FW | IN | JJ | JJR | JJS| LS | MD | NN | NNS | NNP | NNPS | PDT	| POS | PRP | PRP$ | RB | RBR | RBS | RP | SYM
+    DT index | NN(S) index | NP length | 
+    CC | CD | DT | EX | FW | IN | JJ | JJR | JJS| LS | MD | NN | NNS | NNP | NNPS | PDT	| POS | PRP | PRP$ | RB | RBR | RBS | RP | SYM
     TO | UH | VB | VBD | VBG | VBN | VBP | VBZ | WDT | WP | WP$ | WRB
     """
+    # find all NPs 
+    np_trees = list()
+    subtrees = node.subtrees()
+    for st in subtrees:
+        if st.name == 'NP':
+            
     
 
 def __create(corpus_file, parse_tree_file, glove_file, corrections_file, test = False):
