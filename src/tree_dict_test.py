@@ -54,9 +54,9 @@ class TestDeepTreeMethods(unittest.TestCase):
         leaves = self.root.leavesWithPOS('DT')
         self.assertEqual(len(leaves), 3, "Leaves with POS 'DT' in the ROOT")
         
-    def test_dpSubtrees(self):
-        subtrees = self.root.dpSubtrees()
-        self.assertEqual(len(subtrees), 4, "DP Subtrees in the ROOT")
+    def test_dpaSubtrees(self):
+        subtrees = self.root.dpaSubtrees()
+        self.assertEqual(len(subtrees), 4, "DPA Subtrees in the ROOT")
  
 class TestShallowTreeMethods(unittest.TestCase):
     @classmethod
@@ -101,9 +101,9 @@ class TestShallowTreeMethods(unittest.TestCase):
         leaves = self.root.leavesWithPOS('DT')
         self.assertEqual(len(leaves), 1, "Leaves with POS 'DT' in the ROOT")
         
-    def test_dpSubtrees(self):
-        subtrees = self.root.dpSubtrees()
-        self.assertEqual(len(subtrees), 0, "DP Subtrees in the ROOT")
+    def test_dpaSubtrees(self):
+        subtrees = self.root.dpaSubtrees()
+        self.assertEqual(len(subtrees), 0, "DPA Subtrees in the ROOT")
     
 if __name__ == '__main__':
     unittest.main()

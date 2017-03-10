@@ -43,19 +43,19 @@ class SNode(object):
         """
         return [n for n in walk(self) if len(n.children) > 1]
     
-    def dpSubtrees(self):
+    def dpaSubtrees(self):
         """
         Returns all leaves containing exactly one determiner (DT) in form of article [a, an, the]
         """
-        dp_trees = list()
+        dpa_trees = list()
         subtrees = self.subtrees()
         for st in subtrees:
             if st.name == 'NP':
                 dt_leaves = st.leavesWithPOS('DT')
                 if len(dt_leaves) == 1 and any(dt_leaves[0].name == name for name in ['a', 'an', 'the']):
-                    dp_trees.append(st)
+                    dpa_trees.append(st)
                 
-        return dp_trees
+        return dpa_trees
                 
         
         
@@ -213,8 +213,8 @@ if __name__ == "__main__":
     for n in leaves:
         printNode(n)
             
-    print("+++++++++++++++++++++ DP Subtrees")
-    subtrees = root.dpSubtrees()
+    print("+++++++++++++++++++++ DPA Subtrees")
+    subtrees = root.dpaSubtrees()
     for st in subtrees:
         print("---")
         for l in st.leaves():
