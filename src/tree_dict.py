@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Mar  9 22:13:59 2017
+The parse tree dictionary parser
 
 @author: yaric
 """
@@ -106,7 +106,7 @@ def treeFromDict(d, s_index = 0, root = None):
             # the leaf node found
             node = SNode(child["name"], s_index, root.name)
             root.children.append(node)
-            s_index = s_index + 1
+            s_index += 1
         else:
             # the interior node
             node = SNode(child["name"])
@@ -114,6 +114,40 @@ def treeFromDict(d, s_index = 0, root = None):
             root.children.append(node)
                 
     return (root, s_index)
+
+def treeFromList(l):
+    """
+    Builds tree of SNode from provided list
+    Arguments:
+        l: the list with tree representation
+    Return:
+        the tuple with root node of the tree and the sentence index of last leaf node
+    """
+    root = SNode("S")
+    s_index = 0
+    for child in l:
+        node = SNode(child["name"])
+        _, s_index = treeFromDict(child, s_index, node)
+        root.children.append(node)
+        
+    return (root, s_index)
+        
+
+def treeFromJSON(json_str):
+    """
+    Builds tree from JSON string
+    Arguments:
+        json_str: the JSON string with tree data
+    Return:
+        the tree build from provided JSON structure
+    """
+    if json_str["name"] == 'TOP':
+        return treeFromDict(json_str['children'][0])
+    elif json_str["name"] == 'INC':
+        return treeFromList(json_str['children'])
+    else:
+        raise("Unknown tree format found: " + json_str["name"])
+    
     
 
 def treeStringFromDict(d):
@@ -139,15 +173,15 @@ def treeStringFromDict(d):
 if __name__ == "__main__":
     with open("../data/parse_train.txt") as f:
         data = json.load(f)
-    tree_str = json.dumps(data[1]['children'])
+    tree_str = json.dumps(data[1])
     print(tree_str)
     tree =  json.loads(tree_str)
-    acc = treeStringFromDict(tree[0])
+    acc = treeStringFromDict(tree['children'][0])
     
     print("+++++++++++++++++++++ Tree string")
     print(acc)
     
-    root, index = treeFromDict(tree[0])
+    root, index = treeFromJSON(tree)
     tree_nodes = walk(root)
     print("+++++++++++++++++++++ Nodes")
     print("Last index: " + str(index))
