@@ -5,44 +5,46 @@ Created on Fri Mar 10 21:40:08 2017
 
 @author: yaric
 """
+import json
 
-from enum import Enum
+import pandas as pd
+    
+    
+def read_json(file):
+    """
+    Loads JSON data from file
+    Arguments:
+        file: the path to the JSON file
+    Return:
+        the dictionary with parsed JSON
+    """
+    with open(file) as f:
+        data = json.load(f)
+    return data
 
-# The Part-of-Speech enumerations
-class POS(Enum):
-    CC = 1
-    CD = 2
-    DT = 3
-    EX = 4
-    FW = 5
-    IN = 6
-    JJ = 7
-    JJR = 8
-    JJS = 9
-    LS = 10
-    MD = 11
-    NN = 12
-    NNS = 13
-    NNP = 14
-    NNPS = 15
-    PDT = 16
-    POS = 17
-    PRP = 18
-    PRP_ = 19
-    RB = 20
-    RBR = 21
-    RBS = 22
-    RP = 23
-    SYM = 24
-    TO = 25
-    UH = 26
-    VB = 27
-    VBD = 28
-    VBG = 29
-    VBN = 36
-    VBP = 37
-    VBZ = 38
-    WDT = 39
-    WP = 40
-    WP_ = 41
-    WRB = 42
+def checkDataCorporaSanity(corrections_file, corpus_file):
+    """
+    Method to  quick data corpus sanity check. It checks if there is no intersections
+    between corrected acrticles and text's articles, i.e. test if we really have  
+    corrected articles in text corpora present for training.
+    """
+    cor_df = pd.read_json(corrections_file, dtype="string")
+    text_df = pd.read_json(corpus_file, dtype="string")
+    
+    # select all corrected articles
+    cor_sel = cor_df.isnull() == False
+    
+    text_art = text_df[cor_sel]
+    cor_art = cor_df[cor_sel]
+    
+    # find intersection between two
+    intersection_df = text_art == cor_art
+    
+    intersection = intersection_df[intersection_df == True].sum().sum()
+    
+    print("The number of intersections: %d" % intersection)
+    
+        
+if __name__ == '__main__':
+    data_dir = "../data/"
+    checkDataCorporaSanity(data_dir + "corrections_train.txt", data_dir + "sentence_train.txt")
