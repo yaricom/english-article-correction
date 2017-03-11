@@ -8,15 +8,48 @@ Holds common configuration parameters
 
 # The root path to the data directory
 data_dir = "../data"
+# The output directory
+out_dir = "../out"
+# The intermediate output directory
+intermediate_dir = out_dir + "/intermediate" 
 
 #
-# Train corpora
+# The train raw corpora
 #
-# The text corpora
-sentence_train_path = data_dir + "/" + "sentence_train.txt"
-# The corrections 
-parse_train_path = data_dir + "/" + "parse_train.txt"
-# The Glove vectors
-glove_train_path = data_dir + "/" + "glove_train.txt"
-# The corrections
-corrections_train_path = data_dir + "/" + "corrections_train.txt"
+sentence_train_path = data_dir + "/sentence_train.txt"
+parse_train_path = data_dir + "/parse_train.txt"
+glove_train_path = data_dir + "/glove_train.txt"
+corrections_train_path = data_dir + "/corrections_train.txt"
+
+#
+# The validate raw corpora
+#
+sentence_validate_path = data_dir + "/sentence_test.txt"
+parse_validate_path = data_dir + "/parse_test.txt"
+glove_validate_path = data_dir + "/glove_test.txt"
+corrections_validate_path = data_dir + "/corrections_test.txt"
+
+#
+# The test raw corpora
+#
+sentence_test_path = data_dir + "/sentence_private_test.txt"
+parse_test_path = data_dir + "/parse_private_test.txt"
+glove_test_path = data_dir + "/glove_private_test.txt"
+corrections_test_path = data_dir + "/corrections_private_test.txt"
+
+#
+# The train processed corpora
+#
+train_features_path = intermediate_dir + "/train_features.npy"
+train_labels_path = intermediate_dir + "/train_labels.npy"
+
+#
+# The validate processed corpora
+#
+validate_features_path = intermediate_dir + "/validate_features.npy"
+validate_labels_path = intermediate_dir + "/validate_labels.npy"
+
+#
+# The test processed corpora
+#
+test_features_path = intermediate_dir + "/test_features.npy"
