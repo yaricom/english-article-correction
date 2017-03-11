@@ -31,8 +31,9 @@ class TestDataSetMethods(unittest.TestCase):
                                               corrections = corrections[index])
         
         self.assertEqual(len(features), 4, "Wrong features list size")
-        self.assertEqual(len(features), len(labels), 
-                          "The features list has size not equal to the labels")
+        self.assertEqual(features.shape[1], ds.n_features,
+                          "Wrong feature dimensions: %d" % features.shape[1])
+        
         # check labels
         labels_test = np.array([[0], [ds.DT.A], [ds.DT.THE], [ds.DT.THE]], dtype = "int")
         self.assertTrue(np.all(labels == labels_test), "Wrong labels generated")
@@ -78,6 +79,10 @@ class TestDataSetMethods(unittest.TestCase):
         
         self.assertEqual(len(features), len(labels), 
                           "The train features list has size not equal to the labels")
+        self.assertEqual(features.shape[1], ds.n_features,
+                          "Wrong feature dimensions: %d" % features.shape[1])
+        self.assertEqual(labels.shape[1], 1,
+                          "Wrong label dimensions: %d" % labels.shape[1])
        
     def test_create_validate_data_set(self):
         features, labels = ds.create(
@@ -88,6 +93,10 @@ class TestDataSetMethods(unittest.TestCase):
         
         self.assertEqual(len(features), len(labels), 
                           "The validate features list has size not equal to the labels")
+        self.assertEqual(features.shape[1], ds.n_features,
+                          "Wrong feature dimensions: %d" % features.shape[1])
+        self.assertEqual(labels.shape[1], 1,
+                          "Wrong label dimensions: %d" % labels.shape[1])
         
     def test_create_test_data_set(self):
         features, labels = ds.create(
@@ -98,9 +107,10 @@ class TestDataSetMethods(unittest.TestCase):
                 test = True)
         
         self.assertIsNone(labels, "Labels should not be returned")
-        self.assertGreater(len(features), 0, "Empty features returned")
-        
-        
+        self.assertGreater(features.shape[0], 0, "Empty features returned")
+        self.assertEqual(features.shape[1], ds.n_features,
+                          "Wrong feature dimensions: %d" % features.shape[1])
+    
         
 if __name__ == '__main__':
     unittest.main()
