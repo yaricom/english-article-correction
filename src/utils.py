@@ -22,12 +22,14 @@ def read_json(file):
         data = json.load(f)
     return data
 
-def checkDataCorporaSanity(corrections_file, corpus_file):
+def checkDataCorporaSanity(data_dir, corpora_name):
     """
     Method to  quick data corpus sanity check. It checks if there is no intersections
     between corrected acrticles and text's articles, i.e. test if we really have  
     corrected articles in text corpora present for training.
     """
+    corrections_file = "%s/corrections_%s.txt" % (data_dir, corpora_name)
+    corpus_file = "%s/sentence_%s.txt" % (data_dir, corpora_name)
     cor_df = pd.read_json(corrections_file, dtype="string")
     text_df = pd.read_json(corpus_file, dtype="string")
     
@@ -42,9 +44,11 @@ def checkDataCorporaSanity(corrections_file, corpus_file):
     
     intersection = intersection_df[intersection_df == True].sum().sum()
     
-    print("The number of intersections: %d" % intersection)
+    print("The number of intersections: %d in corpora: %s" 
+          % (intersection, corpora_name))
     
         
 if __name__ == '__main__':
-    data_dir = "../data/"
-    checkDataCorporaSanity(data_dir + "corrections_train.txt", data_dir + "sentence_train.txt")
+    data_dir = "../data"
+    checkDataCorporaSanity(data_dir, "train")
+    checkDataCorporaSanity(data_dir, "test")
