@@ -33,12 +33,10 @@ class TestDataSetMethods(unittest.TestCase):
         self.assertEqual(len(features), 4, "Wrong features list size")
         self.assertEqual(len(features), len(labels), 
                           "The features list has size not equal to the labels")
-        print(labels)
         # check labels
         labels_test = np.array([[0], [ds.DT.A], [ds.DT.THE], [ds.DT.THE]], dtype = "int")
         self.assertTrue(np.all(labels == labels_test), "Wrong labels generated")
         
-        print(features)
         # check features
         offset = 2
         features_test = np.zeros((4, ds.n_features), dtype = "f")
