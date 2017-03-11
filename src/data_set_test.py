@@ -15,7 +15,7 @@ import data_set as ds
 import tree_dict as td
 
 class TestDataSetMethods(unittest.TestCase):
-           
+      
     def test_extract_features(self):
         text_data = utils.read_json(config.corrections_train_path)
         corrections = utils.read_json(config.corrections_train_path)
@@ -71,7 +71,7 @@ class TestDataSetMethods(unittest.TestCase):
 
         self.assertTrue(np.all(features == features_test), "Wrong features generated")
         
-    def test_create_data_set(self):
+    def test_create_train_data_set(self):
         features, labels = ds.create(
                 corpus_file = config.sentence_train_path, 
                 parse_tree_file = config.parse_train_path,
@@ -79,7 +79,28 @@ class TestDataSetMethods(unittest.TestCase):
                 corrections_file = config.corrections_train_path)
         
         self.assertEqual(len(features), len(labels), 
-                          "The features list has size not equal to the labels")
+                          "The train features list has size not equal to the labels")
+       
+    def test_create_validate_data_set(self):
+        features, labels = ds.create(
+                corpus_file = config.sentence_validate_path, 
+                parse_tree_file = config.parse_validate_path,
+                glove_file = config.glove_validate_path, 
+                corrections_file = config.corrections_validate_path)
+        
+        self.assertEqual(len(features), len(labels), 
+                          "The validate features list has size not equal to the labels")
+        
+    def test_create_test_data_set(self):
+        features, labels = ds.create(
+                corpus_file = config.sentence_test_path, 
+                parse_tree_file = config.parse_test_path,
+                glove_file = config.glove_test_path, 
+                corrections_file = config.corrections_test_path,
+                test = True)
+        
+        self.assertIsNone(labels, "Labels should not be returned")
+        self.assertGreater(len(features), 0, "Empty features returned")
         
         
         
