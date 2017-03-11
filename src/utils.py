@@ -9,7 +9,8 @@ import json
 
 import pandas as pd
     
-    
+import config
+
 def read_json(file):
     """
     Loads JSON data from file
@@ -49,6 +50,5 @@ def checkDataCorporaSanity(data_dir, corpora_name):
     
         
 if __name__ == '__main__':
-    data_dir = "../data"
-    checkDataCorporaSanity(data_dir, "train")
-    checkDataCorporaSanity(data_dir, "test")
+    checkDataCorporaSanity(config.data_dir, "train")
+    checkDataCorporaSanity(config.data_dir, "test")

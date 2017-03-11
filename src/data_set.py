@@ -7,15 +7,15 @@ corresponding indices from Glove vectors.
 
 @author: yaric
 """
-
-import json
+from enum import IntEnum
 import numpy as np
 
 import tree_dict as td
 import utils
+import config
 
 # The Part-of-Speech enumerations
-class POS(Enum):
+class POS(IntEnum):
     CC = 1
     CD = 2
     DT = 3
@@ -52,28 +52,90 @@ class POS(Enum):
     WP = 40
     WP_ = 41
     WRB = 42
+    
+    @classmethod
+    def valueByName(cls, name):
+        """
+        Find enum value by the name
+        Raise:
+            exception in case if the name not found
+        """
+        return cls.__members__[name].value
 
+# The determinant article labels enumeration
+class DT(IntEnum):
+    A = 1
+    AN = 2
+    THE = 3
+    
+    @classmethod
+    def valueByName(cls, name):
+        """
+        Find enum value by the name
+        Raise:
+            exception in case if the name not found
+        """
+        return cls.__members__[name.upper()].value
 
-def extractFeatures(node, features, row, glove):
+def extractFeatures(node, text, glove, corrections = None):
     """
     Method to extract features from provided node and store it in features array
     Arguments:
         node: the parse tree node with sentence
-        features: the ndarray to store features row
-        row: the row at features array to hold data
+        text: the text corpora to extract features from
         glove: the glove indices map
+        corrections: the list of corrections [optional] if building training data set
+    Return:
+        tuple with array of features for found determiner phrases with articles and
+        labels or None
     """
     """
     Features map:
-    DT index | NN(S) index | NP length | 
+    DT glove index | NN(S) glove index | units between DTa and NN | 
     CC | CD | DT | EX | FW | IN | JJ | JJR | JJS| LS | MD | NN | NNS | NNP | NNPS | PDT	| POS | PRP | PRP$ | RB | RBR | RBS | RP | SYM
     TO | UH | VB | VBD | VBG | VBN | VBP | VBZ | WDT | WP | WP$ | WRB
     """
-    # find all NPs 
-    np_trees = list()
-    subtrees = node.subtrees()
-    for st in subtrees:
-        if st.name == 'NP':
+
+    offset = 2
+    n_features = offset + len(POS.__members__)
+    dta_node = None
+    nn_node = None
+    labels = None
+    
+    dpa_subtrees = node.dpaSubtrees()
+    features = np.zeros((len(dpa_subtrees), n_features), dtype = 'f')
+    if corrections != None:
+        labels = np.zeros((len(dpa_subtrees), 1), dtype = 'int')
+        
+    # collect features
+    row = 0
+    for st in dpa_subtrees:
+        for node in st.leaves():
+            # collect POS type
+            pos_index = POS.valueByName(node.pos.replace("$", "_"))
+            features[row, offset + pos_index] += 1
+            
+            if node.pos == 'DT' and any(node.name == name for name in ['a', 'an', 'the']):
+                # found DT with article
+                features[row, 0] = glove[node.s_index]
+                dta_node = node
+                # store correction label if appropriate
+                if corrections[node.s_index] != None:
+                    labels[row] = DT.valueByName(corrections[node.s_index])
+                    
+            elif nn_node == None and any(node.pos == pos for pos in ['NN', 'NNS', 'NNP', 'NNPS']):
+                # found firts (proper) noun
+                features[row, 1] = glove[node.s_index]
+                nn_node = node
+             
+            # store distance between DT and NN(PS)
+            if dta_node != None and nn_node != None:
+                features[row, 2] = abs(dta_node.s_index - nn_node.s_index)
+                
+        # increment row index
+        row += 1
+        
+    return (features, labels)
             
     
 
@@ -90,14 +152,21 @@ def __create(corpus_file, parse_tree_file, glove_file, corrections_file, test = 
         (features, labels): the tuple with features and labels. If test parameter is True then labels
         wil be None
     """
-    #text_data = utils.read_json(corpus_file)
+    text_data = utils.read_json(corpus_file)
     corrections = utils.read_json(corrections_file)
     parse_trees_list = utils.read_json(parse_tree_file)
-    #glove_indices = utils.read_json(glove_file)
+    glove_indices = utils.read_json(glove_file)
     
     # The sanity checks
+    #
+    if len(text_data) != len(parse_trees_list):
+        raise Exception("Text data corpora lenght: %d, not equals to the parse trees count: %d" 
+                        % (len(text_data), len(parse_trees_list)))
     if len(corrections) != len(parse_trees_list):
-        raise Exception("Corrections list lenght: %d, not equals parse trees count: %d" 
+        raise Exception("Corrections list lenght: %d, not equals to the parse trees count: %d" 
+              % (len(corrections), len(parse_trees_list)))
+    if len(glove_indices) != len(parse_trees_list):
+        raise Exception("Glove indices list lenght: %d, not equals to the parse trees count: %d" 
               % (len(corrections), len(parse_trees_list)))
     
     # iterate over constituency parse trees and extract features
@@ -106,12 +175,26 @@ def __create(corpus_file, parse_tree_file, glove_file, corrections_file, test = 
     for tree_dict in parse_trees_list:
         # get corrections list for the sentence
         s_corr = corrections[index]
+        # get glove indices list for the sentence
+        g_list = glove_indices[index]
+        # get text corpora list for sentence
+        t_list = text_data[index]
         # get parse tree for sentence
         tree, _ = td.treeFromDict(tree_dict)
-        # do sanity check
+        #
+        # do sanity checks
+        #
         leaves = tree.leaves()
         if len(s_corr) != len(leaves):
-            raise Exception("Corrections list lenght: %d not equal tree leaves count: %d at index: %d"  % (len(s_corr), len(leaves), index))
+            raise Exception("Corrections list lenght: %d not equal the tree leaves count: %d at index: %d" 
+                            % (len(s_corr), len(leaves), index))
+        if len(g_list) != len(leaves):
+            raise Exception("Glove indices list lenght: %d not equal the tree leaves count: %d at index: %d" 
+                            % (len(g_list), len(leaves), index))
+        if len(t_list) != len(leaves):
+            raise Exception("Text corpora list lenght: %d not equal the tree leaves count: %d at index: %d" 
+                            % (len(t_list), len(leaves), index))
+        
         # check if sentence has corrections
         hasCorrections = any(w != None for w in s_corr)
         if hasCorrections:
@@ -120,10 +203,12 @@ def __create(corpus_file, parse_tree_file, glove_file, corrections_file, test = 
         index += 1
         
         
-    print("Total senteces: %d, sentences with correction: %d" % (len(corrections), corrected_sentences))
+    print("Total senteces: %d, the sentences with correction: %d" % (len(corrections), corrected_sentences))
         
         
 if __name__ == '__main__':
-    data_dir = "../data/"
-    __create(data_dir + "sentence_train.txt", data_dir + "parse_train.txt",
-             data_dir + "glove_train.txt", data_dir + "corrections_train.txt")
+    
+    __create(corpus_file = config.sentence_train_path, 
+             parse_tree_file = config.parse_train_path,
+             glove_file = config.glove_train_path, 
+             corrections_file = config.corrections_train_path)

@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Mar 10 15:03:04 2017
+The tests for tree implementation
 
 @author: yaric
 """
 
 import unittest
-import json
 
 import tree_dict as td
+import config
+import utils
 
 class TestDeepTreeMethods(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        with open("../data/parse_train.txt") as f:
-            data = json.load(f)
+        data = utils.read_json(config.parse_train_path)
         tree_dict = data[1]
         root, index = td.treeFromJSON(tree_dict)
         cls.root = root
@@ -68,8 +68,7 @@ class TestDeepTreeMethods(unittest.TestCase):
 class TestShallowTreeMethods(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        with open("../data/parse_train.txt") as f:
-            data = json.load(f)
+        data = utils.read_json(config.parse_train_path)
         tree_dict = data[723]
         root, index = td.treeFromJSON(tree_dict)
         cls.root = root
