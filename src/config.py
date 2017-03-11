@@ -7,9 +7,9 @@ Holds common configuration parameters
 """
 
 # The root path to the data directory
-data_dir = "./data"
+data_dir = "../data"
 # The output directory
-out_dir = "./out"
+out_dir = "../out"
 # The intermediate output directory
 intermediate_dir = out_dir + "/intermediate" 
 
