@@ -132,7 +132,7 @@ def extractFeatures(node, text, glove, corrections = None):
                 features[row, 0] = glove[node.s_index]
                 dta_node = node
                 # store correction label if appropriate
-                if corrections[node.s_index] != None:
+                if corrections != None and corrections[node.s_index] != None:
                     labels[row] = DT.valueByName(corrections[node.s_index])
                     
             elif nn_node == None and any(node.pos == pos for pos in ['NN', 'NNS', 'NNP', 'NNPS']):
@@ -270,9 +270,9 @@ if __name__ == '__main__':
     # Create test data features
     #
     print("Making test features")
-    features, _ = create(corpus_file = config.sentence_validate_path, 
-                             parse_tree_file = config.parse_validate_path,
-                             glove_file = config.glove_validate_path, 
-                             corrections_file = config.corrections_validate_path,
-                             test = True)
+    features, _ = create(corpus_file = config.sentence_test_path, 
+                         parse_tree_file = config.parse_test_path,
+                         glove_file = config.glove_test_path, 
+                         corrections_file = config.corrections_test_path,
+                         test = True)
     np.save(config.test_features_path, features)
