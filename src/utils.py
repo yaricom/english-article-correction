@@ -28,6 +28,9 @@ def checkDataCorporaSanity(data_dir, corpora_name):
     Method to  quick data corpus sanity check. It checks if there is no intersections
     between corrected acrticles and text's articles, i.e. test if we really have  
     corrected articles in text corpora present for training.
+    Arguments:
+        data_dir: the directory to look for corpora data
+        corpora_name: the name of corpora to test
     """
     corrections_file = "%s/corrections_%s.txt" % (data_dir, corpora_name)
     corpus_file = "%s/sentence_%s.txt" % (data_dir, corpora_name)
@@ -47,6 +50,8 @@ def checkDataCorporaSanity(data_dir, corpora_name):
     
     print("The number of intersections: %d in corpora: %s" 
           % (intersection, corpora_name))
+    if intersection > 0:
+        raise Exception("The text and corrections has the same Articles at the same position")
     
         
 if __name__ == '__main__':

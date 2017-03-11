@@ -10,6 +10,7 @@ corresponding indices from Glove vectors.
 from enum import IntEnum
 import numpy as np
 import os
+import argparse
 
 import tree_dict as td
 import utils
@@ -241,38 +242,46 @@ def create(corpus_file, parse_tree_file, glove_file, corrections_file, test = Fa
         
         
 if __name__ == '__main__':
-    # Clean output directory
-    if os.path.exists(config.intermediate_dir):
-        os.removedirs(config.intermediate_dir)
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('corpora', help='the name of data coprora to process')
+    args = parser.parse_args()
+    
+    
+    # Create output directory
+    if os.path.exists(config.intermediate_dir) == False:
+        os.makedirs(config.intermediate_dir)
         
-    os.makedirs(config.intermediate_dir)
+    print("Making %s features" % args.corpora)
     
     # Create train data corpus
     #
-    print("Making train features")
-    features, labels = create(corpus_file = config.sentence_train_path, 
-                             parse_tree_file = config.parse_train_path,
-                             glove_file = config.glove_train_path, 
-                             corrections_file = config.corrections_train_path)
-    np.save(config.train_features_path, features)
-    np.save(config.train_labels_path, labels)
+    if args.corpora == 'train':
+        features, labels = create(corpus_file = config.sentence_train_path, 
+                                 parse_tree_file = config.parse_train_path,
+                                 glove_file = config.glove_train_path, 
+                                 corrections_file = config.corrections_train_path)
+        np.save(config.train_features_path, features)
+        np.save(config.train_labels_path, labels)
     
     # Create validate data corpus
     #
-    print("Making validate features")
-    features, labels = create(corpus_file = config.sentence_validate_path, 
-                             parse_tree_file = config.parse_validate_path,
-                             glove_file = config.glove_validate_path, 
-                             corrections_file = config.corrections_validate_path)
-    np.save(config.validate_features_path, features)
-    np.save(config.validate_labels_path, labels)
+    elif args.corpora == 'validate':
+        features, labels = create(corpus_file = config.sentence_validate_path, 
+                                 parse_tree_file = config.parse_validate_path,
+                                 glove_file = config.glove_validate_path, 
+                                 corrections_file = config.corrections_validate_path)
+        np.save(config.validate_features_path, features)
+        np.save(config.validate_labels_path, labels)
     
     # Create test data features
     #
-    print("Making test features")
-    features, _ = create(corpus_file = config.sentence_test_path, 
-                         parse_tree_file = config.parse_test_path,
-                         glove_file = config.glove_test_path, 
-                         corrections_file = config.corrections_test_path,
-                         test = True)
-    np.save(config.test_features_path, features)
+    elif args.corpora == 'test':
+        features, _ = create(corpus_file = config.sentence_test_path, 
+                             parse_tree_file = config.parse_test_path,
+                             glove_file = config.glove_test_path, 
+                             corrections_file = config.corrections_test_path,
+                             test = True)
+        np.save(config.test_features_path, features)
+    else:
+        raise Exception("Unknown coprpora type: " + args.corpora)
