@@ -12,20 +12,47 @@ import json
 import numpy as np
 
 import tree_dict as td
-from utils import POS
+import utils
 
+# The Part-of-Speech enumerations
+class POS(Enum):
+    CC = 1
+    CD = 2
+    DT = 3
+    EX = 4
+    FW = 5
+    IN = 6
+    JJ = 7
+    JJR = 8
+    JJS = 9
+    LS = 10
+    MD = 11
+    NN = 12
+    NNS = 13
+    NNP = 14
+    NNPS = 15
+    PDT = 16
+    POS = 17
+    PRP = 18
+    PRP_ = 19
+    RB = 20
+    RBR = 21
+    RBS = 22
+    RP = 23
+    SYM = 24
+    TO = 25
+    UH = 26
+    VB = 27
+    VBD = 28
+    VBG = 29
+    VBN = 36
+    VBP = 37
+    VBZ = 38
+    WDT = 39
+    WP = 40
+    WP_ = 41
+    WRB = 42
 
-def __read_json(file):
-    """
-    Loads JSON data from file
-    Arguments:
-        file: the path to the JSON file
-    Return:
-        the dictionary with parsed JSON
-    """
-    with open(file) as f:
-        data = json.load(f)
-    return data
 
 def extractFeatures(node, features, row, glove):
     """
@@ -63,14 +90,14 @@ def __create(corpus_file, parse_tree_file, glove_file, corrections_file, test = 
         (features, labels): the tuple with features and labels. If test parameter is True then labels
         wil be None
     """
-    #text_data = __read_json(corpus_file)
-    corrections = __read_json(corrections_file)
-    parse_trees_list = __read_json(parse_tree_file)
-    #glove_indices = __read_json(glove_file)
+    #text_data = utils.read_json(corpus_file)
+    corrections = utils.read_json(corrections_file)
+    parse_trees_list = utils.read_json(parse_tree_file)
+    #glove_indices = utils.read_json(glove_file)
     
     # The sanity checks
     if len(corrections) != len(parse_trees_list):
-        raise("Corrections list lenght: %d, not equals parse trees count: %d" 
+        raise Exception("Corrections list lenght: %d, not equals parse trees count: %d" 
               % (len(corrections), len(parse_trees_list)))
     
     # iterate over constituency parse trees and extract features
