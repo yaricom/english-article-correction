@@ -78,12 +78,10 @@ class TestDataSetMethods(unittest.TestCase):
                 glove_file = config.glove_train_path, 
                 corrections_file = config.corrections_train_path)
         
-        self.assertEqual(len(features), labels.shape[1], 
+        self.assertEqual(len(features), len(labels), 
                           "The train features list has size not equal to the labels")
         self.assertEqual(features.shape[1], ds.n_features,
                           "Wrong feature dimensions: %d" % features.shape[1])
-        self.assertEqual(labels.shape[0], 1,
-                          "Wrong label dimensions: %d" % labels.shape[0])
        
     def test_create_validate_data_set(self):
         features, labels = ds.create(
@@ -92,12 +90,10 @@ class TestDataSetMethods(unittest.TestCase):
                 glove_file = config.glove_validate_path, 
                 corrections_file = config.corrections_validate_path)
         
-        self.assertEqual(len(features), labels.shape[1], 
+        self.assertEqual(len(features), len(labels), 
                           "The validate features list has size not equal to the labels")
         self.assertEqual(features.shape[1], ds.n_features,
                           "Wrong feature dimensions: %d" % features.shape[1])
-        self.assertEqual(labels.shape[0], 1,
-                          "Wrong label dimensions: %d" % labels.shape[0])
         
     def test_create_test_data_set(self):
         features, labels = ds.create(

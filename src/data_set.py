@@ -131,7 +131,7 @@ def extractFeatures(node, text, glove, corrections = None):
     dpa_subtrees = node.dpaSubtrees()
     features = np.zeros((len(dpa_subtrees), n_features), dtype = 'f')
     if corrections != None:
-        labels = np.zeros((1, len(dpa_subtrees)), dtype = 'int')
+        labels = np.zeros((len(dpa_subtrees),), dtype = 'int')
         
     # collect features
     row = 0
@@ -151,7 +151,7 @@ def extractFeatures(node, text, glove, corrections = None):
                 dta_node = node
                 # store correction label if appropriate
                 if corrections != None and corrections[node.s_index] != None:
-                    labels[0, row] = DT.valueByName(corrections[node.s_index])
+                    labels[row] = DT.valueByName(corrections[node.s_index])
                     
             elif nn_node == None and any(node.pos == pos for pos in ['NN', 'NNS', 'NNP', 'NNPS']):
                 # found first (proper) noun
@@ -248,7 +248,7 @@ def create(corpus_file, parse_tree_file, glove_file, corrections_file, test = Fa
         if index == 0:
             labels = l
         elif test == False:
-            labels = np.concatenate((labels, l), axis = 1)
+            labels = np.concatenate((labels, l))
         
         index += 1
         
