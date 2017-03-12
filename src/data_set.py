@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-The data set generator. It will create numeric features matrix by chunking Noun 
-Phrases (NP) from provided data corpus and substituting words in the NP with
+The data set generatorion and results persistence routines. 
+As generator it will create numeric features matrix by chunking Noun Phrases 
+(NP) from provided data corpus and substituting words in the NP with
 corresponding indices from Glove vectors.
+
+As results persistence it will encode predictions as list of lists in format 
+[[null, null, null, null, null, null, null, ["the", 0.552054389029137], null]],
+where null means no correction at this unit and ["the", 0.552054389029137] means
+correction suggested to "the' with confidence 0.552054389029137
 
 @author: yaric
 """
@@ -11,6 +17,7 @@ from enum import IntEnum
 import numpy as np
 import os
 import argparse
+import json
 
 import tree_dict as td
 import utils
@@ -85,6 +92,16 @@ class DT(IntEnum):
             exception in case if the name not found
         """
         return cls.__members__[name.upper()].value
+    
+    @classmethod
+    def nameByValue(cls, value):
+        """
+        Find enum name by the value
+        """
+        if value < cls.A or value > cls.THE:
+            raise Exception("Wrong value for enumeration: " + value)
+            
+        return [member.name for _, member in cls.__members__.items() if member.value == value][0]
 
 # The offset for POS features start    
 offset = 2
@@ -240,6 +257,40 @@ def create(corpus_file, parse_tree_file, glove_file, corrections_file, test = Fa
     
     return (features, labels)
         
+
+def savePredictions(predictions, file):
+    """
+    Method to save predictions results.
+    Arguments:
+        predictions: the list of lists with predictions per sentences for each unit
+        [
+             [[class, confidece],[class, confidece],[class, confidece]],
+             [[class, confidece],[class, confidece],[class, confidece]],
+             ...
+             [[class, confidece],[class, confidece],[class, confidece]]
+        ]
+        file: the file path to save
+    """
+    out = list()
+    for s in predictions:
+        out_s = list()
+        for w in s:
+            # sanity check
+            if w[0] < 0 or w[0] > DT.THE.value:
+                raise Exception("Wrong class found: " + w[0])
+                
+            if w[0] == 0:
+                out_s.append(None)
+            else:
+                class_label = DT.nameByValue(w[0]).lower()
+                out_s.append([class_label, float(w[1])])
+        # Append sentence
+        out.append(out_s)
+        
+    # save result to JSON
+    with open(file, mode = 'w') as f:
+        json.dump(out, f)
+    
         
 if __name__ == '__main__':
     

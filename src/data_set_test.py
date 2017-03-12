@@ -8,6 +8,7 @@ The test cases for data set implementation
 
 import unittest
 import numpy as np
+import os
 
 import utils
 import config
@@ -15,7 +16,7 @@ import data_set as ds
 import tree_dict as td
 
 class TestDataSetMethods(unittest.TestCase):
-      
+    """ 
     def test_extract_features(self):
         text_data = utils.read_json(config.corrections_train_path)
         corrections = utils.read_json(config.corrections_train_path)
@@ -110,6 +111,42 @@ class TestDataSetMethods(unittest.TestCase):
         self.assertGreater(features.shape[0], 0, "Empty features returned")
         self.assertEqual(features.shape[1], ds.n_features,
                           "Wrong feature dimensions: %d" % features.shape[1])
+    """
+    def test_save_predictions(self):
+        predictions = np.array(
+                [
+                        [[0,1], [0,1], [ds.DT.A, 0.6],[0,1], [0,1],[0,1], [0,1], [ds.DT.THE, 0.8]],
+                        [[0,1], [ds.DT.AN, 0.6],[0,1], [0,1], [0,1], [ds.DT.A, 0.8],[0,1], [0,1]],
+                        [[0,1], [0,1],[0,1], [0,1], [0,1], [ds.DT.A, 0.8],[0,1], [0,1]]
+                ], dtype = "f")
+        file = config.unit_tests_dir + "/save_predictions_test.txt"
+        if os.path.exists(config.unit_tests_dir) == False:
+            os.makedirs(config.unit_tests_dir)
+        
+        ds.savePredictions(predictions, file)
+        
+        # test saved predictions
+        saved = utils.read_json(file)
+        self.assertIsNotNone(saved, "Failed to save predictions")
+        self.assertEqual(len(predictions), len(saved), "Wrong size of saved sentences")
+        
+        for i in range(len(predictions)):
+            pr = predictions[i]
+            s_pr = saved[i]
+            self.assertEqual(len(pr), len(s_pr), 
+                             "Wrong senetence length [%d] in saved predictions at index: %d" 
+                             % (len(s_pr), i))
+            for j in range(len(pr)):
+                if pr[j][0] == 0:
+                    self.assertIsNone(s_pr[j], 
+                                      "Wrong saved None prediction class at: %d, %d" % (i, j))
+                else:
+                    art = ds.DT.nameByValue(pr[j][0]).lower()
+                    self.assertEqual(art, s_pr[j][0],
+                                     "Wrong article prediction class at: %d, %d" % (i, j))
+                    self.assertAlmostEqual(pr[j][1], s_pr[j][1], places = 2,
+                                     msg = "Wrong article confidence value at: %d, %d" % (i, j))
+                
     
         
 if __name__ == '__main__':

@@ -12,6 +12,8 @@ data_dir = "../data"
 out_dir = "../out"
 # The intermediate output directory
 intermediate_dir = out_dir + "/intermediate" 
+# The directory to store unit test results
+unit_tests_dir = intermediate_dir + "/u_tests"
 
 #
 # The train raw corpora

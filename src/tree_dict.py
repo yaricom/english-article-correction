@@ -25,6 +25,12 @@ class SNode(object):
         self.pos = pos
         self.children = list()
         
+    def __str__(self):
+        """
+        Returns string representation of this node.
+        """
+        return self.name + " | " + str(self.s_index) + " | " + str(self.pos)
+        
     def leaves(self):
         """
         Returns list of all leaves in this node
@@ -106,7 +112,7 @@ def printNode(node):
     Arguments:
         node: the tree node
     """
-    print(node.name + " | " + str(node.s_index) + " | " + str(node.pos))
+    print(node)
             
 def treeFromDict(d, s_index = 0, root = None):
     """
