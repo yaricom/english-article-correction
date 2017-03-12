@@ -256,7 +256,6 @@ def create(corpus_file, parse_tree_file, glove_file, corrections_file, test = Fa
     print("Features collected: %d" % (len(features)))
     
     return (features, labels)
-        
 
 def savePredictions(predictions, file):
     """
