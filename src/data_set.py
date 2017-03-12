@@ -145,7 +145,7 @@ def extractFeatures(node, text, glove, corrections = None):
                 pos_index = POS.valueByName(pos_name)
                 features[row, offset + pos_index] += 1
             
-            if node.pos == 'DT' and any(node.name == name for name in ['a', 'an', 'the']):
+            if node.pos == 'DT':
                 # found DT with article
                 features[row, 0] = glove[node.s_index]
                 dta_node = node
@@ -257,7 +257,33 @@ def create(corpus_file, parse_tree_file, glove_file, corrections_file, test = Fa
 
 
 def predictinsForSentence(sentence, labels, dpa_nodes):
-    
+    """
+    Creates predictions list for specific sentence
+    Arguments:
+        sentence: the list of units in sentence
+    """
+    # sanity check
+    if len(labels) != len(dpa_nodes):
+        raise Exception("labels lenght not equal to dpa nodes")
+        
+    dt_indices = [node.s_index for node in dpa_nodes.leaves() if node.pos == 'DT']
+    l_index = 0  
+    res = list()      
+    for i in range(len(sentence)):
+        s_w = sentence[i]
+        if i in dt_indices:
+            # DP found
+            if utils.dtIsArticle(s_w) == False:
+                raise Exception("The determiner index at wrong position: " + i) # sanity check
+            max_lab_ind = np.argmax(labels[l_index], axis=1) # the most confident prediction
+            res.append([max_lab_ind, labels[l_index, max_lab_ind]]) # [class, probability]
+            l_index += 1 # move to the next prediction label
+        else:
+            # ordinary word
+            res.append(None)
+            
+    return res
+            
 
 def predictionsFromLabels(labels, corpus_file, parse_tree_file):
     """
@@ -278,8 +304,7 @@ def predictionsFromLabels(labels, corpus_file, parse_tree_file):
         sentence = text_data[i]
         node, _ = td.treeFromDict(parse_trees_list[i]) # the parse tree for sentence
         dpa_nodes = node.dpaSubtrees()
-        s_list = predictinsForSentence(
-                sentence, labels[l_index : l_index + len(dpa_nodes),], dpa_nodes)
+        s_list = predictinsForSentence(sentence, labels[l_index : l_index + len(dpa_nodes),], dpa_nodes)
         l_index += len(dpa_nodes)
         res_list.append(s_list)
         
