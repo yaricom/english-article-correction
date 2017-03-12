@@ -57,3 +57,4 @@ validate_labels_path = intermediate_dir + "/validate_labels.npy"
 # The test processed corpora
 #
 test_features_path = intermediate_dir + "/test_features.npy"
+test_labels_prob_path = intermediate_dir + "/test_labels_prob.npy"

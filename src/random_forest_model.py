@@ -18,8 +18,8 @@ import data_set as ds
 import config
 
 # Parameters
-n_classes = ds.DT.THE.value
-n_estimators = 100
+n_classes = ds.DT.THE.value + 1
+n_estimators = 300
 RANDOM_STATE = 123
 
 def train():
@@ -116,5 +116,7 @@ if __name__ == '__main__':
     labels = predict(test_features, model, x_scaler)
     
     print(labels)
+    # save predicted labels
+    np.save(config.test_labels_prob_path, labels)
     
 
