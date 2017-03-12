@@ -16,7 +16,7 @@ import data_set as ds
 import tree_dict as td
 
 class TestDataSetMethods(unittest.TestCase):
-    """ 
+
     def test_extract_features(self):
         text_data = utils.read_json(config.corrections_train_path)
         corrections = utils.read_json(config.corrections_train_path)
@@ -111,7 +111,7 @@ class TestDataSetMethods(unittest.TestCase):
         self.assertGreater(features.shape[0], 0, "Empty features returned")
         self.assertEqual(features.shape[1], ds.n_features,
                           "Wrong feature dimensions: %d" % features.shape[1])
-    """
+
     def test_save_predictions(self):
         predictions = np.array(
                 [
