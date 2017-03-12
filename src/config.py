@@ -14,6 +14,8 @@ out_dir = "../out"
 intermediate_dir = out_dir + "/intermediate" 
 # The directory to store unit test results
 unit_tests_dir = intermediate_dir + "/u_tests"
+# The directory to store rained models
+models_dir = intermediate_dir + "/models"
 
 #
 # The train raw corpora

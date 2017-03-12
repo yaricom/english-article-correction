@@ -6,7 +6,6 @@ Created on Fri Mar 10 21:40:08 2017
 @author: yaric
 """
 import json
-
 import pandas as pd
     
 import config
