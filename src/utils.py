@@ -22,6 +22,16 @@ def read_json(file):
         data = json.load(f)
     return data
 
+def dtIsArticle(dt):
+    """
+    Checks if determiner is indefinite or definite English article
+    Argument:
+        dt: the determiner name
+    Return:
+        True if determiner is indefinite or definite English article
+    """
+    return dt.lower() in ['a', 'an', 'the']
+
 def checkDataCorporaSanity(data_dir, corpora_name):
     """
     Method to  quick data corpus sanity check. It checks if there is no intersections

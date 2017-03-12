@@ -6,6 +6,7 @@ The parse tree dictionary parser
 @author: yaric
 """
 import json
+import utils
 
 class SNode(object):
     """
@@ -61,7 +62,8 @@ class SNode(object):
         for st in subtrees:
             if st.name == 'NP':
                 dt_leaves = st.leavesWithPOS('DT')
-                if len(dt_leaves) == 1 and all(dt_leaves[0].s_index != index for index in known_indices) and any(dt_leaves[0].name == name for name in ['a', 'an', 'the']):
+                if len(dt_leaves) == 1 and all(dt_leaves[0].s_index != index for index in known_indices) \
+                    and utils.dtIsArticle(dt_leaves[0].name):
                     dpa_trees.append(st)
                     known_indices.append(dt_leaves[0].s_index)
                 
