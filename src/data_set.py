@@ -131,7 +131,7 @@ def extractFeatures(node, text, glove, corrections = None):
     dpa_subtrees = node.dpaSubtrees()
     features = np.zeros((len(dpa_subtrees), n_features), dtype = 'f')
     if corrections != None:
-        labels = np.zeros((len(dpa_subtrees), 1), dtype = 'int')
+        labels = np.zeros((1, len(dpa_subtrees)), dtype = 'int')
         
     # collect features
     row = 0
@@ -151,7 +151,7 @@ def extractFeatures(node, text, glove, corrections = None):
                 dta_node = node
                 # store correction label if appropriate
                 if corrections != None and corrections[node.s_index] != None:
-                    labels[row] = DT.valueByName(corrections[node.s_index])
+                    labels[0, row] = DT.valueByName(corrections[node.s_index])
                     
             elif nn_node == None and any(node.pos == pos for pos in ['NN', 'NNS', 'NNP', 'NNPS']):
                 # found first (proper) noun
@@ -248,7 +248,7 @@ def create(corpus_file, parse_tree_file, glove_file, corrections_file, test = Fa
         if index == 0:
             labels = l
         elif test == False:
-            labels = np.concatenate((labels, l), axis = 0)
+            labels = np.concatenate((labels, l), axis = 1)
         
         index += 1
         
@@ -290,7 +290,22 @@ def savePredictions(predictions, file):
     # save result to JSON
     with open(file, mode = 'w') as f:
         json.dump(out, f)
+
+def loadTrainCorpora():
+    # check that train corpora exists
+    if any([os.path.exists(path) == False for path in 
+            [config.train_features_path, config.train_labels_path, 
+             config.validate_features_path, config.validate_labels_path]]):
+        raise Exception("Necessary train corpora files not found")
+        
+    # Load data
+    train_features = np.load(config.train_features_path)
+    train_labels = np.load(config.train_labels_path)
+    validate_features = np.load(config.validate_features_path)
+    validate_labels = np.load(config.validate_labels_path)
     
+    return {"train":{"features":train_features, "labels":train_labels},
+            "validate":{"features":validate_features, "labels":validate_labels}}
         
 if __name__ == '__main__':
     
