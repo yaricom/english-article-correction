@@ -167,8 +167,6 @@ def extractFeatures(node, text, glove, corrections = None):
         
     return (features, labels)
             
-    
-
 def create(corpus_file, parse_tree_file, glove_file, corrections_file, test = False):
     """
     Creates new data set from provided files
@@ -256,6 +254,37 @@ def create(corpus_file, parse_tree_file, glove_file, corrections_file, test = Fa
     print("Features collected: %d" % (len(features)))
     
     return (features, labels)
+
+
+def predictinsForSentence(sentence, labels, dpa_nodes):
+    
+
+def predictionsFromLabels(labels, corpus_file, parse_tree_file):
+    """
+    Create predictions results to be accepted by savePredictions
+    Arguments:
+        labels: the predicted labels from predictive model
+        corpus_file: the text's corpora file for which predictions was made
+        parse_tree_file: the parse tree file for text corpora
+    Returns:
+        list of predictions per sentence to be accepted by savePredictions
+    """
+    text_data = utils.read_json(corpus_file)
+    parse_trees_list = utils.read_json(parse_tree_file)
+    
+    res_list = list()
+    l_index = 0
+    for i in range(len(parse_trees_list)):
+        sentence = text_data[i]
+        node, _ = td.treeFromDict(parse_trees_list[i]) # the parse tree for sentence
+        dpa_nodes = node.dpaSubtrees()
+        s_list = predictinsForSentence(
+                sentence, labels[l_index : l_index + len(dpa_nodes),], dpa_nodes)
+        l_index += len(dpa_nodes)
+        res_list.append(s_list)
+        
+    return res_list
+    
 
 def savePredictions(predictions, file):
     """
