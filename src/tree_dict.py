@@ -55,13 +55,15 @@ class SNode(object):
         """
         Returns all leaves containing exactly one determiner (DT) in form of article [a, an, the]
         """
+        known_indices = list()
         dpa_trees = list()
         subtrees = self.subtrees()
         for st in subtrees:
             if st.name == 'NP':
                 dt_leaves = st.leavesWithPOS('DT')
-                if len(dt_leaves) == 1 and any(dt_leaves[0].name == name for name in ['a', 'an', 'the']):
+                if len(dt_leaves) == 1 and all(dt_leaves[0].s_index != index for index in known_indices) and any(dt_leaves[0].name == name for name in ['a', 'an', 'the']):
                     dpa_trees.append(st)
+                    known_indices.append(dt_leaves[0].s_index)
                 
         return dpa_trees
                 

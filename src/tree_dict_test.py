@@ -63,7 +63,7 @@ class TestDeepTreeMethods(unittest.TestCase):
         
     def test_dpaSubtrees(self):
         subtrees = self.root.dpaSubtrees()
-        self.assertEqual(len(subtrees), 4, "DPA Subtrees in the ROOT")
+        self.assertEqual(len(subtrees), 3, "DPA Subtrees in the ROOT")
  
 class TestShallowTreeMethods(unittest.TestCase):
     @classmethod
