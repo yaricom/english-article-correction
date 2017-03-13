@@ -15,8 +15,8 @@ def evaluate(text_file, correct_file, submission_file):
     data = []
     for sent, cor, sub in zip_longest(text, correct, submission):
         for w, c, s in zip_longest(sent, cor, sub):
-            if w in ['a', 'an', 'the']:
-                if s is None or s[0] == w:
+            if w.lower() in ['a', 'an', 'the']:
+                if s is None or s[0] == w.lower():
                     s = ['', float('-inf')]
                 data.append((-s[1], s[0] == c, c is not None))
     data.sort()
