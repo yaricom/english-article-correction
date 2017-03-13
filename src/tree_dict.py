@@ -56,7 +56,7 @@ class SNode(object):
         """
         Returns all leaves containing exactly one determiner (DT) in form of article [a, an, the]
         """
-        known_indices = list()
+        known_indices = list() # holds already added DT to avoid double adding shorted DP forms included into bigger
         dpa_trees = list()
         subtrees = self.subtrees()
         for st in subtrees:
