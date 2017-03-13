@@ -42,19 +42,26 @@ The source code consists of series of `Python3` scripts encapsulating specific f
 * [tree_dict.py](src/tree_dict.py) - the parser and manipulation utilities for `constituency parse trees`
 * [tree_dict_test.py](src/tree_dict_test.py) - the unit tests for `tree_dict.py` script
 * [utils.py](src/utils.py) - the common utilities, such as: JSON parsing, data corpora sanity checks, etc
+* [predictor.py](src/predictor.py) - the predictive models runner. Encapsulates common functionality which can be applied
+to different predictors.
+* [random_forest_model.py](src/random_forest_model.py) - the predictive model based on `sklearn.ensemble.RandomForestClassifier`
 
 ## Running experiments
 
 Before running experiments with training a model that detects and corrects an incorrect usage of 
 the English article (“a”, “an” or “the”) we need to process raw data corpora files.
 
-To generate data corpora files execute from terminal in `src` directory the command:
-
+To generate data set files execute from terminal in root directory the command:
 ```
-$python src/data_set.py [corpora_name]
+$ create_data_set.sh
 ```
-where: corpora_name - the name of data corpora to be generated [train, validate]
 
+To run prediction with default parameters execute from terminal in root directory the command:
+```
+$ generate_results.sh
+```
+
+The predicted results will be saved in `out` directory.
 
 ## Authors
 
