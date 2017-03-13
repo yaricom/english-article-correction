@@ -104,16 +104,16 @@ class DT(IntEnum):
         return [member.name for _, member in cls.__members__.items() if member.value == value][0]
 
 # The offset for POS features start    
-offset = 2
+offset = 3 #2
 # The number of features extracted
 n_features = offset + len(POS.__members__) + 1
 
-def extractFeatures(node, text, glove, corrections = None):
+def extractFeatures(node, sentence, glove, corrections = None):
     """
     Method to extract features from provided node and store it in features array
     Arguments:
         node: the parse tree node with sentence
-        text: the text corpora to extract features from
+        sentence: the sentence corpora to extract features from
         glove: the glove indices map
         corrections: the list of corrections [optional] if building training data set
     Return:
@@ -122,8 +122,8 @@ def extractFeatures(node, text, glove, corrections = None):
     """
     """
     Features map:
-    DT glove index | NN(S) glove index | units between DTa and NN | 
-    CC | CD | DT | EX | FW | IN | JJ | JJR | JJS| LS | MD | NN | NNS | NNP | NNPS | PDT	| POS | PRP | PRP$ | RB | RBR | RBS | RP | SYM
+    DT glove index | NN(S) glove index | # of units between DTa and NN | if DT at the sentence start |
+    CC | CD | DT | EX | FW | IN | JJ | JJR | JJS| LS | MD | NN | NNS | NNP | NNPS | PDT	| POS | PRP | PRP$ | RB | RBR | RBS | RP | SYM |
     TO | UH | VB | VBD | VBG | VBN | VBP | VBZ | WDT | WP | WP$ | WRB
     """
     labels = None
@@ -149,6 +149,9 @@ def extractFeatures(node, text, glove, corrections = None):
                 # found DT with article
                 features[row, 0] = glove[node.s_index]
                 dta_node = node
+                # store flag to mark if DT at the start of sentence
+                if node.s_index == 0:
+                    features[row, 3] = 1
                 # store correction label if appropriate
                 if corrections != None and corrections[node.s_index] != None:
                     labels[row] = DT.valueByName(corrections[node.s_index])
@@ -237,7 +240,7 @@ def create(corpus_file, parse_tree_file, glove_file, corrections_file, test = Fa
             
         # generate features and labels
         #
-        f, l = extractFeatures(node = tree, text = t_list, glove = g_list, corrections = s_corr)
+        f, l = extractFeatures(node = tree, sentence = t_list, glove = g_list, corrections = s_corr)
         if index == 0:
             features = f
         else:
@@ -266,7 +269,7 @@ def predictionsForSentence(sentence, labels, dpa_nodes):
     if len(labels) != len(dpa_nodes):
         raise Exception("labels lenght not equal to dpa nodes")
         
-    dt_indices = [node.s_index for node in dpa_nodes.leaves() if node.pos == 'DT']
+    dt_indices = [node.leaves()[0].s_index for node in dpa_nodes]
     l_index = 0  
     res = list()      
     for i in range(len(sentence)):
@@ -275,7 +278,7 @@ def predictionsForSentence(sentence, labels, dpa_nodes):
             # DP found
             if utils.dtIsArticle(s_w) == False:
                 raise Exception("The determiner index at wrong position: " + i) # sanity check
-            max_lab_ind = np.argmax(labels[l_index], axis=1) # the most confident prediction
+            max_lab_ind = np.argmax(labels[l_index]) # the most confident prediction
             res.append([max_lab_ind, labels[l_index, max_lab_ind]]) # [class, probability]
             l_index += 1 # move to the next prediction label
         else:
@@ -308,9 +311,10 @@ def predictionsFromLabels(labels, corpus_file, parse_tree_file):
         sentence = text_data[i]
         node, _ = td.treeFromDict(parse_trees_list[i]) # the parse tree for sentence
         dpa_nodes = node.dpaSubtrees()
-        s_list = predictinsForSentence(sentence, labels[l_index : l_index + len(dpa_nodes),], dpa_nodes)
-        l_index += len(dpa_nodes)
+        s_list = predictionsForSentence(sentence, labels[l_index : l_index + len(dpa_nodes),], dpa_nodes)
         res_list.append(s_list)
+        # move to the next sentence labels
+        l_index += len(dpa_nodes)
         
     return res_list
     
