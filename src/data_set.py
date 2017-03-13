@@ -351,22 +351,6 @@ def savePredictions(predictions, file):
     # save result to JSON
     with open(file, mode = 'w') as f:
         json.dump(out, f)
-
-def loadTrainCorpora():
-    # check that train corpora exists
-    if any([os.path.exists(path) == False for path in 
-            [config.train_features_path, config.train_labels_path, 
-             config.validate_features_path, config.validate_labels_path]]):
-        raise Exception("Necessary train corpora files not found")
-        
-    # Load data
-    train_features = np.load(config.train_features_path)
-    train_labels = np.load(config.train_labels_path)
-    validate_features = np.load(config.validate_features_path)
-    validate_labels = np.load(config.validate_labels_path)
-    
-    return {"train":{"features":train_features, "labels":train_labels},
-            "validate":{"features":validate_features, "labels":validate_labels}}
         
 if __name__ == '__main__':
     
