@@ -33,7 +33,7 @@ def evaluate(text_file, correct_file, submission_file):
         acc = max(acc, 1 - (0. + fp + all_mistakes - tp) / len(data))
         if fp2 * 1. / len(data) <= 0.02:
             score = tp * 1. / all_mistakes
-    print("# of mistakes: %d" % (all_mistakes))
+
     print( 'target score = %.2f %%' % (score * 100))
     print( 'accuracy (just for info) = %.2f %%' % (acc * 100))
 
