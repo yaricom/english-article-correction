@@ -1,7 +1,7 @@
 """
 Perform prediction results evaluation
 """
-from itertools import izip_longest
+from itertools import zip_longest
 import json
 import argparse
 
@@ -13,8 +13,8 @@ def evaluate(text_file, correct_file, submission_file):
     with open(submission_file) as f:
         submission = json.load(f)
     data = []
-    for sent, cor, sub in izip_longest(text, correct, submission):
-        for w, c, s in izip_longest(sent, cor, sub):
+    for sent, cor, sub in zip_longest(text, correct, submission):
+        for w, c, s in zip_longest(sent, cor, sub):
             if w in ['a', 'an', 'the']:
                 if s is None or s[0] == w:
                     s = ['', float('-inf')]
