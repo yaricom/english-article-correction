@@ -7,7 +7,7 @@
 cd src
 
 # Do prediction over validation data set
-/usr/bin/env python3 predictor.py RandomForest --test_data ../out/intermediate/train_features.npy \
+/usr/bin/env python3 predictor.py RandomForest --test_data ../out/intermediate/validate_features.npy \
 						--save_labels \
 						--validate_model
 
