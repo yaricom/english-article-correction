@@ -31,6 +31,8 @@ The data corpora comprise of following files:
 5. part of speech tags: pos_tags_train.txt, pos_tags_test.txt
 6. GloVe vectors indexes for list of vectors in glove_vectors.txt file: glove_train.txt, glove_test.txt
 
+Before running experiments unpack data corpus archive file `data.zip` into `data` diretory
+
 
 ## Source code structure
 
