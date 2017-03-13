@@ -9,6 +9,7 @@ of determinant (English article) wrong usage
 @author: yaric
 """
 import json
+import argparse
 
 import numpy as np
 
@@ -153,4 +154,18 @@ def savePredictions(predictions, file):
     print("Prediction results saved to: " + file)
 
 if __name__ == '__main__':
-    saveSubmissionResults()
+    parser = argparse.ArgumentParser(description='The results generator transforming predicted labes array into submission compatible format')
+    parser.add_argument('--out_file', default=config.test_reults_path, 
+                        help='the file to store predictions results in custom format')
+    parser.add_argument('--labels_file', default=config.test_labels_prob_path, 
+                        help='the path to the file with predcitions label Numpy array')
+    parser.add_argument('--test_senetnces_file', default=config.sentence_test_path, 
+                        help="the text's corpora file for test data")
+    parser.add_argument('--test_parse_tree_file', default=config.parse_test_path, 
+                        help='the parse tree file for test data')
+    args = parser.parse_args()
+    
+    saveSubmissionResults(out_file = args.out_file, 
+                          labels_file = args.labels_file, 
+                          test_senetnces_file = args.test_senetnces_file, 
+                          test_parse_tree_file = args.test_parse_tree_file)
