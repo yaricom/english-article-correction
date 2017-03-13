@@ -256,7 +256,7 @@ def create(corpus_file, parse_tree_file, glove_file, corrections_file, test = Fa
     return (features, labels)
 
 
-def predictinsForSentence(sentence, labels, dpa_nodes):
+def predictionsForSentence(sentence, labels, dpa_nodes):
     """
     Creates predictions list for specific sentence
     Arguments:
@@ -282,6 +282,10 @@ def predictinsForSentence(sentence, labels, dpa_nodes):
             # ordinary word
             res.append(None)
             
+    # sanity check
+    if l_index != len(labels):
+        raise Exception("Not all labels was processed")
+    
     return res
             
 
