@@ -42,23 +42,20 @@ class TestDataSetMethods(unittest.TestCase):
         features_test = np.zeros((3, ds.n_features), dtype = "f")
         features_test[0, 0] = 2
         features_test[0, 1] = 15189
-        features_test[0, 2] = 1
-        features_test[0, 3] = 0
+        features_test[0, 2] = 0
         features_test[0, ds.offset + ds.POS.DT.value] = 1
         features_test[0, ds.offset + ds.POS.NN.value] = 1
         
         features_test[1, 0] = 2
         features_test[1, 1] = 19803
-        features_test[1, 2] = 1
-        features_test[1, 3] = 0
+        features_test[1, 2] = 0
         features_test[1, ds.offset + ds.POS.DT.value] = 1
         features_test[1, ds.offset + ds.POS.NNP.value] = 1
         features_test[1, ds.offset + ds.POS.NN.value] = 1
         
         features_test[2, 0] = 6
         features_test[2, 1] = 2062
-        features_test[2, 2] = 1
-        features_test[2, 3] = 0
+        features_test[2, 2] = 0
         features_test[2, ds.offset + ds.POS.DT.value] = 1
         features_test[2, ds.offset + ds.POS.NN.value] = 2
         features_test[2, ds.offset + ds.POS.IN.value] = 1
@@ -69,7 +66,7 @@ class TestDataSetMethods(unittest.TestCase):
             print(np.argmin(select, axis = 0))
             self.fail("Wrong features generated")
 
-         
+   
     def test_create_train_data_set(self):
         features, labels = ds.create(
                 corpus_file = config.sentence_train_path, 
@@ -106,6 +103,6 @@ class TestDataSetMethods(unittest.TestCase):
         self.assertGreater(features.shape[0], 0, "Empty features returned")
         self.assertEqual(features.shape[1], ds.n_features,
                           "Wrong feature dimensions: %d" % features.shape[1])
-        
+   
 if __name__ == '__main__':
     unittest.main()

@@ -17,7 +17,6 @@ from enum import IntEnum
 import numpy as np
 import os
 import argparse
-import json
 
 import tree_dict as td
 import utils
@@ -104,7 +103,7 @@ class DT(IntEnum):
         return [member.name for _, member in cls.__members__.items() if member.value == value][0]
 
 # The offset for POS features start    
-offset = 3 #2
+offset = 2
 # The number of features extracted
 n_features = offset + len(POS.__members__) + 1
 
@@ -122,7 +121,7 @@ def extractFeatures(node, sentence, glove, corrections = None):
     """
     """
     Features map:
-    DT glove index | NN(S) glove index | # of units between DTa and NN | if DT at the sentence start |
+    DT glove index | NN(S) glove index | if DT at the sentence start |
     CC | CD | DT | EX | FW | IN | JJ | JJR | JJS| LS | MD | NN | NNS | NNP | NNPS | PDT	| POS | PRP | PRP$ | RB | RBR | RBS | RP | SYM |
     TO | UH | VB | VBD | VBG | VBN | VBP | VBZ | WDT | WP | WP$ | WRB
     """
@@ -136,7 +135,6 @@ def extractFeatures(node, sentence, glove, corrections = None):
     # collect features
     row = 0
     for st in dpa_subtrees:
-        dta_node = None
         nn_node = None
         for node in st.leaves():
             # collect POS type
@@ -148,10 +146,9 @@ def extractFeatures(node, sentence, glove, corrections = None):
             if node.pos == 'DT':
                 # found DT with article
                 features[row, 0] = glove[node.s_index]
-                dta_node = node
                 # store flag to mark if DT at the start of sentence
                 if node.s_index == 0:
-                    features[row, 3] = 1
+                    features[row, 2] = 1
                 # store correction label if appropriate
                 if corrections != None and corrections[node.s_index] != None:
                     labels[row] = DT.valueByName(corrections[node.s_index])
@@ -160,10 +157,6 @@ def extractFeatures(node, sentence, glove, corrections = None):
                 # found first (proper) noun
                 features[row, 1] = glove[node.s_index]
                 nn_node = node
-             
-            # store distance between DT and NN(PS)
-            if dta_node != None and nn_node != None:
-                features[row, 2] = abs(dta_node.s_index - nn_node.s_index)
                 
         # increment row index
         row += 1
