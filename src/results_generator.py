@@ -158,8 +158,8 @@ if __name__ == '__main__':
     parser.add_argument('--out_file', default=config.test_reults_path, 
                         help='the file to store predictions results in custom format')
     parser.add_argument('--labels_file', default=config.test_labels_prob_path, 
-                        help='the path to the file with predcitions label Numpy array')
-    parser.add_argument('--test_senetnces_file', default=config.sentence_test_path, 
+                        help='the path to the file with predictions label Numpy array')
+    parser.add_argument('--test_sentences_file', default=config.sentence_test_path, 
                         help="the text's corpora file for test data")
     parser.add_argument('--test_parse_tree_file', default=config.parse_test_path, 
                         help='the parse tree file for test data')
@@ -167,5 +167,5 @@ if __name__ == '__main__':
     
     saveSubmissionResults(out_file = args.out_file, 
                           labels_file = args.labels_file, 
-                          test_senetnces_file = args.test_senetnces_file, 
+                          test_senetnces_file = args.test_sentences_file, 
                           test_parse_tree_file = args.test_parse_tree_file)
