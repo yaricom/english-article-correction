@@ -33,8 +33,8 @@ def train():
     train_labels = corpora["train"]["labels"]
     
     # NOTE: just probe for first 100 samples
-    #train_features = train_features[100:] 
-    #train_labels = train_labels[100:]
+    #train_features = train_features[:100,] 
+    #train_labels = train_labels[:100,]
     
     # statndardize fetures
     X_scaler = StandardScaler(with_mean = False) # we have sparse matrix - avoid centering
@@ -48,7 +48,7 @@ def train():
     clf = RandomForestClassifier(n_estimators = n_estimators, random_state = RANDOM_STATE, n_jobs = -1)
     model = clf.fit(X_train, train_labels)
     
-    train_score = model.score(train_features, train_labels)
+    train_score = model.score(X_train, train_labels)
     
     # validate
     validate_features = corpora["validate"]["features"]
