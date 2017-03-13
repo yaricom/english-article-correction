@@ -63,7 +63,7 @@ To run prediction with default parameters execute from terminal in root director
 $ generate_results.sh
 ```
 
-The predicted results will be saved in `out` directory.
+The predicted results will be saved in `out` directory as `submission_test.txt` file.
 
 ## Authors
 
