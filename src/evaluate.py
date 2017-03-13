@@ -1,6 +1,9 @@
+"""
+Perform prediction results evaluation
+"""
 from itertools import izip_longest
 import json
-
+import argparse
 
 def evaluate(text_file, correct_file, submission_file):
     with open(text_file) as f:
@@ -35,4 +38,15 @@ def evaluate(text_file, correct_file, submission_file):
 
 
 if __name__ == '__main__':
-    evaluate('data/sentence_test.txt', 'data/corrections_test.txt', 'data/submission_test.txt')
+    parser = argparse.ArgumentParser(description='The prediction results evaluator')
+    parser.add_argument('--results_file', required = True, 
+                        help='the path to the file with predictions resulst')
+    parser.add_argument('--test_sentences_file', required = True, 
+                        help="the text's corpora file for test data")
+    parser.add_argument('--test_corrections_file', required = True, 
+                        help='the path to the file with ethalon corrections')
+    args = parser.parse_args()
+    
+    evaluate(text_file = args.test_sentences_file, 
+             correct_file = args.test_corrections_file, 
+             submission_file = args.results_file)
