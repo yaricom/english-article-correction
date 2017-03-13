@@ -12,6 +12,7 @@ import argparse
 
 import numpy as np
 from sklearn.externals import joblib
+from sklearn.preprocessing import StandardScaler
 
 from random_forest_model import RandomForest
 import config
@@ -21,7 +22,7 @@ def predict(predictor_name, X_test, save_model = False, validate_model = True, s
     Invoked to predict labels for provided test data features
     Arguments:
         predictor_name: the name of predictor to use
-        X_test: the test data features [n_samples, n_features]
+        X_test: the test data features [n_samples, n_features] for labels prediction
         save_model: flag to indicate whether to save trained model
         validate_model: flag to indicate whether to run trained model against validation data
         save_labels: the flag to indicate whether to save predicted labels array
@@ -33,9 +34,14 @@ def predict(predictor_name, X_test, save_model = False, validate_model = True, s
         predictor = RandomForest()
     else:
         raise Exception("Unknown predictor name: " + predictor_name)
+        
+    # statndardize features
+    X_scaler = StandardScaler(with_mean = False) # we have sparse matrix - avoid centering
+    X_train = X_scaler.fit_transform(corpora["train"]["features"])
+    Y_train = corpora["train"]["labels"]
     
     # train model
-    model, X_scaler = predictor.train(corpora["train"]["features"], corpora["train"]["labels"])
+    model = predictor.train(X_train, Y_train)
     v_score = None    
     if validate_model:
         v_score = __validate(corpora["validate"]["features"], corpora["validate"]["labels"], model, X_scaler)
@@ -48,11 +54,12 @@ def predict(predictor_name, X_test, save_model = False, validate_model = True, s
         print("Predicted labels saved to: " + config.test_labels_prob_path)
         
     if save_model:
+        predictor.X_scaler = X_scaler
         __savePredictorModel(predictor)
 
     return (labels, v_score)
     
-def __validate(X, labels, model, X_scaler):
+def __validate(X_test, labels, model, X_scaler):
     """
     Run trained models against validation data
     Arguments:
@@ -63,21 +70,21 @@ def __validate(X, labels, model, X_scaler):
     Return:
          the mean accuracy on the given test data and labels
     """
-    X_test = X_scaler.transform(X)
+    X_test = X_scaler.transform(X_test)
     return model.score(X_test, labels)
 
-def __predict(X, model, X_scaler):
+def __predict(X_test, model, X_scaler):
     """
     Do prediction for provided fetures
     Arguments:
-        X: the test data [n_samples, n_features]
+        X_test: the test data [n_samples, n_features]
         model: the classification predictive model
         X_scaler: the standard scaler used to scale train features
     Return:
         predicted labels as array of shape = [n_samples, n_classes] with probabilities
         of each class
     """
-    X_test = X_scaler.transform(X)
+    X_test = X_scaler.transform(X_test)
     labels = model.predict_proba(X_test)
     return labels
 
