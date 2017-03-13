@@ -36,9 +36,6 @@ def predict(predictor_name, X_test, save_model = False, validate_model = True, s
     
     # train model
     model, X_scaler = predictor.train(corpora["train"]["features"], corpora["train"]["labels"])
-    if save_model:
-        __savePredictorModel(predictor)
-    
     v_score = None    
     if validate_model:
         v_score = __validate(corpora["validate"]["features"], corpora["validate"]["labels"], model, X_scaler)
@@ -50,6 +47,9 @@ def predict(predictor_name, X_test, save_model = False, validate_model = True, s
         np.save(config.test_labels_prob_path, labels)
         print("Predicted labels saved to: " + config.test_labels_prob_path)
         
+    if save_model:
+        __savePredictorModel(predictor)
+
     return (labels, v_score)
     
 def __validate(X, labels, model, X_scaler):
@@ -128,15 +128,22 @@ def __loadTrainCorpora():
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser(description='The predictive model runner')
-    parser.add_argument('predictor_name', help='the name of predictor')
-    parser.add_argument('--save_model', action='store_true', help='if set then trained model will be saved')
-    parser.add_argument('--validate_model', action='store_true', help='if set then trained model will be validated against validate data')
-    parser.add_argument('--save_labels', action='store_true', help='if set then predicted labels will be saved')
+    parser.add_argument('predictor_name', 
+                        help='the name of predictor')
+    parser.add_argument('--test_data', default=config.test_features_path, 
+                        help='the path to the test data file to make predictions for')
+    parser.add_argument('--save_model', action='store_true', 
+                        help='if set then trained model will be saved')
+    parser.add_argument('--validate_model', action='store_true', 
+                        help='if set then trained model will be validated against validate data')
+    parser.add_argument('--save_labels', action='store_true', 
+                        help='if set then predicted labels will be saved')
     args = parser.parse_args()
     
     # Do prediction
     #
-    test_features = np.load(config.test_features_path)
+    print("Start '%s' predictor for [%s] data set" % (args.predictor_name, args.test_data))
+    test_features = np.load(args.test_data)
     labels, _ = predict(args.predictor_name, test_features, 
                         save_model = args.save_model, 
                         validate_model = args.validate_model, 
