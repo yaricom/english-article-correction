@@ -58,3 +58,6 @@ validate_labels_path = intermediate_dir + "/validate_labels.npy"
 #
 test_features_path = intermediate_dir + "/test_features.npy"
 test_labels_prob_path = intermediate_dir + "/test_labels_prob.npy"
+
+# The test results file
+test_reults_path = out_dir + "/submission_test.txt"
