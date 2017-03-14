@@ -31,12 +31,12 @@ def predict(predictor_name, X_test, save_model = False, validate_model = True, s
     """
     corpora = __loadTrainCorpora()
     if predictor_name == 'RandomForest':
-        predictor = RandomForest()
+        predictor = RandomForest(n_estimators = 500)
     else:
         raise Exception("Unknown predictor name: " + predictor_name)
         
     # statndardize features
-    X_scaler = StandardScaler(with_mean = False) # we have sparse matrix - avoid centering
+    X_scaler = StandardScaler(with_mean = False)
     X_train = X_scaler.fit_transform(corpora["train"]["features"])
     Y_train = corpora["train"]["labels"]
     
