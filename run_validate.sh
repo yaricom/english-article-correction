@@ -6,6 +6,10 @@
 
 cd src
 
+# Generate data set - we need only train and validate
+/usr/bin/env python3 data_set.py train
+/usr/bin/env python3 data_set.py validate
+
 # Do prediction over validation data set
 /usr/bin/env python3 predictor.py RandomForest --test_data ../out/intermediate/validate_features.npy \
 						--save_labels \
