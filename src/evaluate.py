@@ -1,7 +1,6 @@
 """
 Perform prediction results evaluation
 """
-from itertools import zip_longest
 import json
 import argparse
 
@@ -13,12 +12,12 @@ def evaluate(text_file, correct_file, submission_file):
     with open(submission_file) as f:
         submission = json.load(f)
     data = []
-    for sent, cor, sub in zip_longest(text, correct, submission):
-        for w, c, s in zip_longest(sent, cor, sub):
+    for sent, cor, sub in zip(text, correct, submission):
+        for w, c, s in zip(sent, cor, sub):
             if w.lower() in ['a', 'an', 'the']:
                 if s is None or s[0] == w.lower():
                     s = ['', float('-inf')]
-                data.append((-s[1], s[0] == c, c is not None))
+                data.append((-s[1], s[0] == c, c is not None)) # (confidence, TP, TP + FN)
     data.sort()
     fp2 = 0
     fp = 0
@@ -27,13 +26,14 @@ def evaluate(text_file, correct_file, submission_file):
     score = 0
     acc = 0
     for _, c, r in data:
-        fp2 += not c
-        fp += not r
+        fp2 += not c #=~TP
+        fp += not r #=~(TP + FN)
         tp += c
         acc = max(acc, 1 - (0. + fp + all_mistakes - tp) / len(data))
         if fp2 * 1. / len(data) <= 0.02:
             score = tp * 1. / all_mistakes
 
+    print('tp: %d, fp: %d, fp2: %d, from: %d' % (tp, fp, fp2, len(data)))
     print( 'target score = %.2f %%' % (score * 100))
     print( 'accuracy (just for info) = %.2f %%' % (acc * 100))
 
