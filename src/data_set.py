@@ -162,7 +162,73 @@ def extractFeatures(node, sentence, glove, corrections = None):
         row += 1
         
     return (features, labels)
+ 
+# The number of fetures with NGram
+n_features_pos_tags = 7
+
+def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None):
+    """
+    Extracts features for specified sentence
+    Arguments:
+        sentence: the sentence corpora to extract features from
+        pos_tags: the part-of-speech tags for sentence
+        glove: the glove indices map
+        corrections: the list of corrections [optional] if building training data set
+    Return:
+        tuple with array of features for found determiner phrases with articles and
+        labels or None
+    
+    Features map:    
+    preceding word | and POS | DT glove index | following word | and POS | head | head PoS
+    """
+    articles = 0
+    for w in sentence:
+        if w.lower() in ['a', 'an', 'the']:
+            articles += 1
+    
+    features = np.zeros((articles, n_features_pos_tags), dtype = 'f')
+    if corrections != None:
+        labels = np.zeros((articles,), dtype = 'int')
+        
+    p_w_g = 0
+    p_p_tos = 0
+    row = -1
+    dta_s_index = 0
+    next_word_index = 0
+    head = None
+    for i in range(len(sentence)):
+        p_tos = pos_tags[i]
+        w_g = glove[i]
+        cor = corrections[i] if corrections != None else None
+        if sentence[i].lower() in ['a', 'an', 'the']:
+            dta_s_index = i
+            row += 1
+            features[row, 0] = p_w_g # preceding word index
+            features[row, 1] = POS.valueByName(p_p_tos) # preceding word TOS
+            features[row, 2] = w_g # DT glove index
+            head = None # head will be following
+            next_word_index = dta_s_index + 1
+            if cor != None:
+                labels[row] = DT.valueByName(cor)
+        elif i == next_word_index:
+            if POS.hasPOSName(p_tos):
+                features[row, 3] = w_g # following word index
+                features[row, 4] = POS.valueByName(p_tos) # following word TOS
+            else:
+                # not a tagged POS found
+                next_word_index += 1
             
+        if p_tos in ['NN', 'NNS'] and head == None:
+            head = sentence[i]
+            features[row, 5] = w_g # head word index
+            features[row, 6] = POS.valueByName(p_tos) # head PoS
+        # store as previous    
+        p_w_g = w_g
+        p_p_tos = p_tos
+       
+    return (features, labels)
+    
+           
 def create(corpus_file, parse_tree_file, glove_file, corrections_file, test = False):
     """
     Creates new data set from provided files
@@ -251,48 +317,149 @@ def create(corpus_file, parse_tree_file, glove_file, corrections_file, test = Fa
     
     return (features, labels)
 
+def createWithPosTags(corpus_file, pos_tags_file, glove_file, corrections_file, test = False):
+    """
+    Creates new features set from provided files using pos tags
+    Arguments:
+        corpus_file: the file text corpus
+        pos_tags_file: the file with pos tags for data corpus
+        glove_file: the file with GloVe vectors indexes for data corpus
+        corrections_file: the file with labeled corrections
+        test: the flag to indicate whether test data set should be constructed
+    Return:
+        (features, labels): the tuple with features and labels. If test parameter is True then labels
+        wil be None
+    """
+    text_data = utils.read_json(corpus_file)
+    pos_tags = utils.read_json(pos_tags_file)
+    glove_indices = utils.read_json(glove_file)
+    
+    if test == False:
+        corrections = utils.read_json(corrections_file)
+    
+    # The sanity checks
+    #
+    if len(text_data) != len(pos_tags):
+        raise Exception("Text data corpora lenght: %d, not equals to the pos tags lists length: %d" 
+                        % (len(text_data), len(pos_tags)))
+    if test == False and len(corrections) != len(pos_tags):
+        raise Exception("Corrections list lenght: %d, not equals to the pos tags lists length: %d" 
+              % (len(corrections), len(pos_tags)))
+    if len(glove_indices) != len(pos_tags):
+        raise Exception("Glove indices list lenght: %d, not equals to the pos tags lists length: %d" 
+              % (len(corrections), len(pos_tags)))
+    
+    features = None
+    labels = None
+    index = 0
+    for index in range(len(pos_tags)):
+        # get corrections list for the sentence
+        if test == False:
+            s_corr = corrections[index]
+        else:
+            s_corr = None
+        # get glove indices list for the sentence
+        g_list = glove_indices[index]
+        # get text corpora list for sentence
+        t_list = text_data[index]
+        # the pos tags for sentence
+        pt_list = pos_tags[index]
+        
+        # do sanity checks
+        #
+        if test == False and len(s_corr) != len(pt_list):
+            raise Exception("Corrections list lenght: %d not equal the pos tags count: %d at index: %d" 
+                            % (len(s_corr), len(pt_list), index))
+        if len(g_list) != len(pt_list):
+            raise Exception("Glove indices list lenght: %d not equal the pos tags count: %d at index: %d" 
+                            % (len(g_list), len(pt_list), index))
+        if len(t_list) != len(pt_list):
+            raise Exception("Text corpora list lenght: %d not equal the pos tags count: %d at index: %d" 
+                            % (len(t_list), len(pt_list), index))
+            
+        # generate features and labels
+        #
+        f, l = extractPosTagsFeatures(pos_tags = pt_list, sentence = t_list, glove = g_list, corrections = s_corr)
+        if index == 0:
+            features = f
+        else:
+            features = np.concatenate((features, f), axis=0)
+        
+        if index == 0:
+            labels = l
+        elif test == False:
+            labels = np.concatenate((labels, l))
+            
+    return (features, labels)
         
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
     parser.add_argument('corpora', help='the name of data coprora to process')
+    parser.add_argument('--f_type', default='tree', 
+                        help='the type of features to be generated [tree, tags]')
     args = parser.parse_args()
     
+    
+    if args.f_type in ['tree', 'tags'] == False:
+        raise Exception("Unknown features type: " + args.f_type)
     
     # Create output directory
     if os.path.exists(config.intermediate_dir) == False:
         os.makedirs(config.intermediate_dir)
         
-    print("Making %s features" % args.corpora)
+    print("Making %s features with type %s" % (args.corpora, args.f_type))
     
     # Create train data corpus
     #
     if args.corpora == 'train':
-        features, labels = create(corpus_file = config.sentence_train_path, 
+        if args.f_type == 'tree':
+            features, labels = create(corpus_file = config.sentence_train_path, 
                                  parse_tree_file = config.parse_train_path,
                                  glove_file = config.glove_train_path, 
                                  corrections_file = config.corrections_train_path)
+        elif args.f_type == 'tags':
+            features, labels = createWithPosTags(corpus_file = config.sentence_train_path, 
+                                 pos_tags_file = config.pos_tags_train_path,
+                                 glove_file = config.glove_train_path, 
+                                 corrections_file = config.corrections_train_path)
+            
         np.save(config.train_features_path, features)
         np.save(config.train_labels_path, labels)
     
     # Create validate data corpus
     #
     elif args.corpora == 'validate':
-        features, labels = create(corpus_file = config.sentence_validate_path, 
+        if args.f_type == 'tree':
+            features, labels = create(corpus_file = config.sentence_validate_path, 
                                  parse_tree_file = config.parse_validate_path,
                                  glove_file = config.glove_validate_path, 
                                  corrections_file = config.corrections_validate_path)
+        elif args.f_type == 'tags':
+            features, labels = createWithPosTags(corpus_file = config.sentence_validate_path, 
+                                 pos_tags_file = config.pos_tags_validate_path,
+                                 glove_file = config.glove_validate_path, 
+                                 corrections_file = config.corrections_validate_path)
+            
         np.save(config.validate_features_path, features)
         np.save(config.validate_labels_path, labels)
     
     # Create test data features
     #
     elif args.corpora == 'test':
-        features, _ = create(corpus_file = config.sentence_test_path, 
+        if args.f_type == 'tree':
+            features, _ = create(corpus_file = config.sentence_test_path, 
                              parse_tree_file = config.parse_test_path,
                              glove_file = config.glove_test_path, 
                              corrections_file = config.corrections_test_path,
                              test = True)
+        elif args.f_type == 'tags':
+            features, _ = create(corpus_file = config.sentence_test_path, 
+                             pos_tags_file = config.pos_tags_test_path,
+                             glove_file = config.glove_test_path, 
+                             corrections_file = config.corrections_test_path,
+                             test = True)
+            
         np.save(config.test_features_path, features)
     else:
         raise Exception("Unknown coprpora type: " + args.corpora)

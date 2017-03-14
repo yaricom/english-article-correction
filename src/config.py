@@ -24,6 +24,7 @@ sentence_train_path = data_dir + "/sentence_train.txt"
 parse_train_path = data_dir + "/parse_train.txt"
 glove_train_path = data_dir + "/glove_train.txt"
 corrections_train_path = data_dir + "/corrections_train.txt"
+pos_tags_train_path = data_dir + "/pos_tags_train.txt"
 
 #
 # The validate raw corpora
@@ -32,6 +33,7 @@ sentence_validate_path = data_dir + "/sentence_test.txt"
 parse_validate_path = data_dir + "/parse_test.txt"
 glove_validate_path = data_dir + "/glove_test.txt"
 corrections_validate_path = data_dir + "/corrections_test.txt"
+pos_tags_validate_path = data_dir + "/pos_tags_test.txt"
 
 #
 # The test raw corpora
@@ -40,6 +42,7 @@ sentence_test_path = data_dir + "/sentence_private_test.txt"
 parse_test_path = data_dir + "/parse_private_test.txt"
 glove_test_path = data_dir + "/glove_private_test.txt"
 corrections_test_path = data_dir + "/corrections_private_test.txt"
+pos_tags_test_path = data_dir + "/pos_tags_private_test.txt"
 
 #
 # The train processed corpora
