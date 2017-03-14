@@ -39,7 +39,7 @@ def saveSubmissionResults(f_type,
     # generate predictions result
     if f_type == 'tree':
         predictions = predictionsFromLabels(labels, text_data, parse_trees_list)
-    elif f_type == 'tag':
+    elif f_type == 'tags':
         predictions = predictionsFromTagLabels(text_data = text_data, labels = labels)
     else:
         raise Exception('Unknown features type: ' + f_type)
@@ -207,7 +207,8 @@ if __name__ == '__main__':
     
     print("Generating test results for features with type: %s" % args.f_type)
     
-    saveSubmissionResults(out_file = args.out_file, 
+    saveSubmissionResults(f_type = args.f_type,
+                          out_file = args.out_file, 
                           labels_file = args.labels_file, 
                           test_senetnces_file = args.test_sentences_file, 
                           test_parse_tree_file = args.test_parse_tree_file)
