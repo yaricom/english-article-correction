@@ -111,9 +111,9 @@ class TestDataSetMethods(unittest.TestCase):
         features_test[2, 5] = 2062
         features_test[2, 6] = ds.POS.valueByName('NN')
         
-        print(text_data[s_index])
-        print(pos_tags[s_index])
-        print(glove_indices[s_index])
+        #print(text_data[s_index])
+        #print(pos_tags[s_index])
+        #print(glove_indices[s_index])
         
         select = features == features_test
         if np.all(select) == False:
@@ -121,6 +121,7 @@ class TestDataSetMethods(unittest.TestCase):
             self.fail("Wrong features generated")
         
     def test_create_train_data_set_WithPosTags(self):
+        print("Train -- ")
         features, labels = ds.createWithPosTags(
                  corpus_file = config.sentence_train_path, 
                  pos_tags_file = config.pos_tags_train_path,
@@ -129,10 +130,38 @@ class TestDataSetMethods(unittest.TestCase):
         
         self.assertEqual(len(features), len(labels), 
                           "The train features list has size not equal to the labels")
-        self.assertEqual(features.shape[1], ds.n_features,
-                          "Wrong feature dimensions: %d" % features.shape[1])
-    """
+        self.assertEqual(features.shape[1], ds.n_features_pos_tags,
+                          "Wrong train feature dimensions: %d" % features.shape[1])
+        
+    def test_create_validate_data_set_WithPosTags(self):
+        print("Validate -- ")
+        features, labels = ds.createWithPosTags(
+                 corpus_file = config.sentence_validate_path, 
+                 pos_tags_file = config.pos_tags_validate_path,
+                 glove_file = config.glove_validate_path, 
+                 corrections_file = config.corrections_validate_path)
+        
+        self.assertEqual(len(features), len(labels), 
+                          "The validate features list has size not equal to the labels")
+        self.assertEqual(features.shape[1], ds.n_features_pos_tags,
+                          "Wrong validate feature dimensions: %d" % features.shape[1])
+        
+    def test_create_test_data_set_WithPosTags(self):
+        print("Test -- ")
+        features, labels = ds.createWithPosTags(
+                 corpus_file = config.sentence_test_path, 
+                 pos_tags_file = config.pos_tags_test_path,
+                 glove_file = config.glove_test_path, 
+                 corrections_file = None,
+                 test = True)
+        
+        self.assertIsNone(labels, "Labels should not be returned")
+        self.assertGreater(features.shape[0], 0, "Empty test features returned")
+        self.assertEqual(features.shape[1], ds.n_features_pos_tags,
+                          "Wrong test feature dimensions: %d" % features.shape[1])
+
     def test_create_train_data_set(self):
+        print("Train - ")
         features, labels = ds.create(
                 corpus_file = config.sentence_train_path, 
                 parse_tree_file = config.parse_train_path,
@@ -145,6 +174,7 @@ class TestDataSetMethods(unittest.TestCase):
                           "Wrong feature dimensions: %d" % features.shape[1])
        
     def test_create_validate_data_set(self):
+        print("Validate - ")
         features, labels = ds.create(
                 corpus_file = config.sentence_validate_path, 
                 parse_tree_file = config.parse_validate_path,
@@ -157,17 +187,18 @@ class TestDataSetMethods(unittest.TestCase):
                           "Wrong feature dimensions: %d" % features.shape[1])
         
     def test_create_test_data_set(self):
+        print("Test - ")
         features, labels = ds.create(
                 corpus_file = config.sentence_test_path, 
                 parse_tree_file = config.parse_test_path,
                 glove_file = config.glove_test_path, 
-                corrections_file = config.corrections_test_path,
+                corrections_file = None,
                 test = True)
         
         self.assertIsNone(labels, "Labels should not be returned")
         self.assertGreater(features.shape[0], 0, "Empty features returned")
         self.assertEqual(features.shape[1], ds.n_features,
                           "Wrong feature dimensions: %d" % features.shape[1])
-   """
+
 if __name__ == '__main__':
     unittest.main()
