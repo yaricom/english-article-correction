@@ -41,7 +41,6 @@ pos_tags_validate_path = data_dir + "/pos_tags_test.txt"
 sentence_test_path = data_dir + "/sentence_private_test.txt"
 parse_test_path = data_dir + "/parse_private_test.txt"
 glove_test_path = data_dir + "/glove_private_test.txt"
-corrections_test_path = data_dir + "/corrections_private_test.txt"
 pos_tags_test_path = data_dir + "/pos_tags_private_test.txt"
 
 #
