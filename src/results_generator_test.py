@@ -71,6 +71,20 @@ class TestResultsGeneratorMethods(unittest.TestCase):
             else:
                 self.assertEqual(test, res, "Not equal items: %s != %s" % (test, res))
     
+    def test_predictionsFromTagLabels(self):
+        test_list = itertools.chain(*self.test_list)
+        out_list = rg.predictionsFromTagLabels(self.text_data, self.labels)
+        out_list = itertools.chain(*out_list)
+        
+        # compare results with test
+        for test, res in zip(test_list, out_list):
+            if test != None:
+                self.assertEqual(test[0], res[0], "Not equal class labels: %s != %s" % (test[0], res[0]))
+                self.assertAlmostEqual(test[1], res[1], 5, "Not equal confidence values: %s != %s" % (test[1], res[1]))
+            else:
+                self.assertEqual(test, res, "Not equal items: %s != %s" % (test, res))
+        
+    
     def test_save_predictions(self):
         predictions = np.array(
                 [

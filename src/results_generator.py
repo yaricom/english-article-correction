@@ -18,13 +18,15 @@ import data_set as ds
 import config
 import utils
 
-def saveSubmissionResults(out_file = config.test_reults_path, 
+def saveSubmissionResults(f_type,
+                          out_file = config.test_reults_path, 
                           labels_file = config.test_labels_prob_path, 
                           test_senetnces_file = config.sentence_test_path, 
-                          test_parse_tree_file = config.parse_test_path):
+                          test_parse_tree_file = config.parse_test_path,):
     """
     Saves submission results from provided prediction labels
     Argument:
+        f_type: the type of features used for training
         out_file: the file to store predictions results in custom format
         labels_file: the path to the file with predcitions label Numpy array
         test_senetnces_file: the text's corpora file for test data
@@ -35,7 +37,12 @@ def saveSubmissionResults(out_file = config.test_reults_path,
     parse_trees_list = utils.read_json(test_parse_tree_file)
     
     # generate predictions result
-    predictions = predictionsFromLabels(labels, text_data, parse_trees_list)
+    if f_type == 'tree':
+        predictions = predictionsFromLabels(labels, text_data, parse_trees_list)
+    elif f_type == 'tag':
+        predictions = predictionsFromTagLabels(text_data = text_data, labels = labels)
+    else:
+        raise Exception('Unknown features type: ' + f_type)
     print("Generated %d prediction sentences" % len(predictions))
     
     # sanity checks
@@ -93,7 +100,8 @@ def predictionsForSentence(sentence, labels, dpa_nodes):
 
 def predictionsFromLabels(labels, text_data, parse_trees_list):
     """
-    Create predictions results to be accepted by savePredictions
+    Create predictions results to be accepted by savePredictions based on features set
+    generated with constituency parse trees
     Arguments:
         labels: the predicted labels from predictive model
         text_data: the text corpora as loaded from JSON
@@ -102,7 +110,7 @@ def predictionsFromLabels(labels, text_data, parse_trees_list):
         list of predictions per sentence to be accepted by savePredictions
     """
     res_list = list()
-    l_index = 0
+    l_index = 0    
     for i in range(len(parse_trees_list)):
         sentence = text_data[i]
         node, _ = td.treeFromDict(parse_trees_list[i]) # the parse tree for sentence
@@ -111,6 +119,36 @@ def predictionsFromLabels(labels, text_data, parse_trees_list):
         res_list.append(s_list)
         # move to the next sentence labels
         l_index += len(dpa_nodes)
+        
+    return res_list 
+
+def predictionsFromTagLabels(text_data, labels):
+    """
+    Create predictions results to be accepted by savePredictions based on features set
+    generated with pos tags
+    Arguments:
+        labels: the predicted labels from predictive model
+        text_data: the text corpora as loaded from JSON
+    Returns:
+        list of predictions per sentence to be accepted by savePredictions
+    """
+    res_list = list()
+    l_index = 0
+    for s in text_data:
+        row_data = list()
+        for w in s:
+            if w.lower() in ['a', 'an', 'the']:
+                max_lab_ind = np.argmax(labels[l_index]) # the most confident prediction
+                row_data.append([max_lab_ind, labels[l_index, max_lab_ind]]) # [class, probability]
+                l_index += 1 # move to the next prediction label
+            else:
+                # ordinary word
+                row_data.append(None)
+        res_list.append(row_data)
+        
+    # sanity check
+    if l_index != len(labels):
+        raise Exception("Not all labels was processed")
         
     return res_list 
     
@@ -163,7 +201,11 @@ if __name__ == '__main__':
                         help="the text's corpora file for test data")
     parser.add_argument('--test_parse_tree_file', default=config.parse_test_path, 
                         help='the parse tree file for test data')
+    parser.add_argument('--f_type', default='tree',
+                        help='the type of features used for training [tree, tags]')
     args = parser.parse_args()
+    
+    print("Generating test results for features with type: %s" % args.f_type)
     
     saveSubmissionResults(out_file = args.out_file, 
                           labels_file = args.labels_file, 
