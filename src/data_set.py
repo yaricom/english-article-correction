@@ -164,7 +164,7 @@ def extractFeatures(node, sentence, glove, corrections = None):
     return (features, labels)
  
 # The number of fetures with NGram
-n_features_pos_tags = 7
+n_features_pos_tags = 11#9#7
 
 def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None):
     """
@@ -179,7 +179,8 @@ def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None):
         labels or None
     
     Features map:    
-    preceding word | and POS | DT glove index | following word | and POS | head | head PoS
+    preceding word | and POS| DT | following word | and POS | 
+    second following word | and POS | head | head PoS | second preceding word | and POS 
     """
     articles = 0
     for w in sentence:
@@ -194,9 +195,12 @@ def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None):
         
     p_w_g = -1
     p_p_tos = -1
+    p_w_g_2 = -1
+    p_p_tos_2 = -1
     row = -1
     dta_s_index = -1
     next_word_index = -1
+    next_2word_index = -1
     for i in range(len(sentence)):
         p_tos = pos_tags[i]
         w_g = glove[i]
@@ -208,6 +212,11 @@ def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None):
                 # add previous if its set
                 features[row, 0] = p_w_g # preceding word index
                 features[row, 1] = POS.valueByName(p_p_tos) # preceding word TOS
+                
+            if POS.hasPOSName(p_p_tos_2):
+                # add previous if its set
+                features[row, 9] = p_w_g_2 # preceding 2 word index
+                features[row, 10] = POS.valueByName(p_p_tos_2) # preceding 2 word TOS
             
             features[row, 2] = w_g # DT glove index
             next_word_index = dta_s_index + 1
@@ -217,26 +226,39 @@ def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None):
             if POS.hasPOSName(p_tos):
                 features[row, 3] = w_g # following word index
                 features[row, 4] = POS.valueByName(p_tos) # following word TOS
+                next_2word_index += 1
             else:
                 # not a tagged POS found
                 next_word_index += 1
+        elif i == next_2word_index:
+            if POS.hasPOSName(p_tos):
+                features[row, 5] = w_g # following word index
+                features[row, 6] = POS.valueByName(p_tos) # following word TOS
+            else:
+                # not a tagged POS found
+                next_2word_index += 1
             
-        if dta_s_index > 0 and features[row, 6] == 0 and p_tos in ['NN', 'NNS']:
+        if dta_s_index > 0 and features[row, 8] == 0 and p_tos in ['NN', 'NNS']:
             # store first head noun following DT
-            features[row, 5] = w_g # head word index
-            features[row, 6] = POS.valueByName(p_tos) # head PoS
+            features[row, 7] = w_g # head word index
+            features[row, 8] = POS.valueByName(p_tos) # head PoS
         
         # store as previous if it's a word, i.e. have TOS
+        if POS.hasPOSName(p_p_tos):
+            p_w_g_2 = p_w_g
+            p_p_tos_2 = p_p_tos
+            
         if POS.hasPOSName(p_tos):
             p_w_g = w_g
             p_p_tos = p_tos
+        
        
     return (features, labels)
     
            
 def create(corpus_file, parse_tree_file, glove_file, corrections_file, test = False):
     """
-    Creates new data set from provided files
+    Creates new data set from provided files using NP acquired from constituency parse trees
     Arguments:
         corpus_file: the file text corpus
         parse_tree_file: the file with constituency parse trees build over data corpus
@@ -415,7 +437,7 @@ if __name__ == '__main__':
     if os.path.exists(config.intermediate_dir) == False:
         os.makedirs(config.intermediate_dir)
         
-    print("Making %s features with type %s" % (args.corpora, args.f_type))
+    print("Making %s features with type [%s]" % (args.corpora, args.f_type))
     
     # Create train data corpus
     #
