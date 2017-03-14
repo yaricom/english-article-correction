@@ -7,8 +7,8 @@
 cd src
 
 # Generate data set - we need only train and validate
-/usr/bin/env python3 data_set.py train
-/usr/bin/env python3 data_set.py validate
+/usr/bin/env python3 data_set.py train --f_type tags
+/usr/bin/env python3 data_set.py validate --f_type tags
 
 # Do prediction over validation data set
 /usr/bin/env python3 predictor.py RandomForest --test_data ../out/intermediate/validate_features.npy \
@@ -16,11 +16,12 @@ cd src
 						--validate_model
 
 # Generate results
-RESULTS_FILE="../out/submission_validate.txt"
+RESULTS_FILE="../out/submission_validate_tags.txt"
 TEXT_FILE="../data/sentence_test.txt"
 /usr/bin/env python3 results_generator.py --out_file $RESULTS_FILE \
 					--test_sentences_file $TEXT_FILE \
-					--test_parse_tree_file ../data/parse_test.txt
+					--test_parse_tree_file ../data/parse_test.txt \
+                     --f_type tags
 
 # Evaluate results
 /usr/bin/env python3 evaluate.py --results_file $RESULTS_FILE \
