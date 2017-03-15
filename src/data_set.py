@@ -180,7 +180,8 @@ def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None):
     
     Features map:    
     preceding word | and POS| DT | following word | and POS | 
-    second following word | and POS | head | head PoS | second preceding word | and POS 
+    second following word | and POS | head | head PoS | second preceding word | and POS |
+    preceding noun
     """
     articles = 0
     for w in sentence:
@@ -192,7 +193,7 @@ def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None):
         labels = np.zeros((articles,), dtype = 'int')
     else:
         labels = None
-        
+          
     p_w_g = -1
     p_p_tos = -1
     p_w_g_2 = -1
@@ -208,6 +209,8 @@ def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None):
         if sentence[i].lower() in ['a', 'an', 'the']:
             dta_s_index = i
             row += 1
+            # collect features
+            features[row, 2] = w_g # DT glove index
             if POS.hasPOSName(p_p_tos):
                 # add previous if its set
                 features[row, 0] = p_w_g # preceding word index
@@ -217,9 +220,10 @@ def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None):
                 # add previous if its set
                 features[row, 9] = p_w_g_2 # preceding 2 word index
                 features[row, 10] = POS.valueByName(p_p_tos_2) # preceding 2 word TOS
-            
-            features[row, 2] = w_g # DT glove index
+
+            # find index of next feature word
             next_word_index = dta_s_index + 1
+            # collect label
             if cor != None:
                 labels[row] = DT.valueByName(cor)
         elif i == next_word_index:
@@ -243,7 +247,7 @@ def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None):
             features[row, 7] = w_g # head word index
             features[row, 8] = POS.valueByName(p_tos) # head PoS
         
-        # store as previous if it's a word, i.e. have TOS
+        # store preceding
         if POS.hasPOSName(p_p_tos):
             p_w_g_2 = p_w_g
             p_p_tos_2 = p_p_tos
@@ -417,7 +421,7 @@ def createWithPosTags(corpus_file, pos_tags_file, glove_file, corrections_file, 
         elif test == False:
             labels = np.concatenate((labels, l))
     
-    print("Features collected: %d" % (len(features)))
+    print("Features collected: %d with dimension: %d" % (features.shape[0], features.shape[1]))
         
     return (features, labels)
         

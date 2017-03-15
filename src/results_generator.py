@@ -136,29 +136,10 @@ def predictionsFromTagLabels(text_data, labels):
     l_index = 0
     for s in text_data:
         row_data = list()
-        for i in range(len(s)):
-            w = s[i]
+        for w in s:
             if w.lower() in ['a', 'an', 'the']:
-                max_lab_class = np.argmax(labels[l_index]) # the most confident prediction
-                if max_lab_class == ds.DT.THE:
-                    # found The
-                    row_data.append([max_lab_class, labels[l_index, max_lab_class]])
-                elif max_lab_class > 0:
-                    # found A/AN - check by vowel rule first
-                    vowel = s[i + 1][0].lower() in "aeiou"
-                    if w.lower() == "an" and not vowel:
-                        max_lab_class = ds.DT.A
-                    elif w.lower() == "a" and vowel:
-                        max_lab_class = ds.DT.AN
-                        
-                    if ds.DT.valueByName(w) == max_lab_class:
-                        print(w)
-                        row_data.append([0, 1.]) # [class, probability]
-                    else:
-                        row_data.append([max_lab_class, labels[l_index, max_lab_class]]) # [class, probability]
-                else:
-                    row_data.append([0, 1.]) # [class, probability]
-
+                max_lab_ind = np.argmax(labels[l_index]) # the most confident prediction
+                row_data.append([max_lab_ind, labels[l_index, max_lab_ind]]) # [class, probability]
                 l_index += 1 # move to the next prediction label
             else:
                 # ordinary word
