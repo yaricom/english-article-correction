@@ -164,7 +164,7 @@ def extractFeatures(node, sentence, glove, corrections = None):
     return (features, labels)
  
 # The number of fetures with NGram
-n_features_pos_tags = 11#9#7
+n_features_pos_tags = 14#13#11
 
 def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None):
     """
@@ -181,7 +181,7 @@ def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None):
     Features map:    
     preceding word | and POS| DT | following word | and POS | 
     second following word | and POS | head | head PoS | second preceding word | and POS |
-    preceding noun
+    
     """
     articles = 0
     for w in sentence:
@@ -193,68 +193,78 @@ def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None):
         labels = np.zeros((articles,), dtype = 'int')
     else:
         labels = None
-          
-    p_w_g = -1
-    p_p_tos = -1
-    p_w_g_2 = -1
-    p_p_tos_2 = -1
+        
+    prev_w = np.zeros((6,), dtype = 'int') # 4
     row = -1
     dta_s_index = -1
-    next_word_index = -1
-    next_2word_index = -1
+    next_word_ind = [-1, -1, -1]
     for i in range(len(sentence)):
         p_tos = pos_tags[i]
         w_g = glove[i]
         cor = corrections[i] if corrections != None else None
-        if sentence[i].lower() in ['a', 'an', 'the']:
+        w = sentence[i].lower()
+        if w in ['a', 'an', 'the']:
             dta_s_index = i
             row += 1
             # collect features
             features[row, 2] = w_g # DT glove index
-            if POS.hasPOSName(p_p_tos):
+            if prev_w[1] > 0:
                 # add previous if its set
-                features[row, 0] = p_w_g # preceding word index
-                features[row, 1] = POS.valueByName(p_p_tos) # preceding word TOS
+                features[row, 0] = prev_w[0] # preceding word index
+                features[row, 1] = prev_w[1] # preceding word TOS
                 
-            if POS.hasPOSName(p_p_tos_2):
-                # add previous if its set
-                features[row, 9] = p_w_g_2 # preceding 2 word index
-                features[row, 10] = POS.valueByName(p_p_tos_2) # preceding 2 word TOS
+            if prev_w[3] > 0:
+                # add previous - 1 if its set
+                features[row, 9] = prev_w[2] # preceding - 1 word index
+                features[row, 10] = prev_w[3] # preceding - 1 word TOS
+  
+            if prev_w[5] > 0 and prev_w[5] in [POS.VB, POS.VBD]:
+                # add previous - 1 if its set
+                features[row, 11] = prev_w[4] # preceding - 2 word index
+                features[row, 12] = prev_w[5] # preceding - 2 word TOS
 
             # find index of next feature word
-            next_word_index = dta_s_index + 1
+            next_word_ind[0] = dta_s_index + 1
             # collect label
             if cor != None:
                 labels[row] = DT.valueByName(cor)
-        elif i == next_word_index:
+        elif i == next_word_ind[0]:
             if POS.hasPOSName(p_tos):
                 features[row, 3] = w_g # following word index
                 features[row, 4] = POS.valueByName(p_tos) # following word TOS
-                next_2word_index += 1
+                next_word_ind[1] = i + 1
+                # vowel
+                if w[0] in 'aeiou':
+                    features[row, 13] = 1
             else:
                 # not a tagged POS found
-                next_word_index += 1
-        elif i == next_2word_index:
+                next_word_ind[0] += 1
+        elif i == next_word_ind[1]:
             if POS.hasPOSName(p_tos):
-                features[row, 5] = w_g # following word index
-                features[row, 6] = POS.valueByName(p_tos) # following word TOS
+                features[row, 5] = w_g # following word + 1 index
+                features[row, 6] = POS.valueByName(p_tos) # following word + 1 TOS
             else:
                 # not a tagged POS found
-                next_2word_index += 1
+                next_word_ind[1] += 1
             
         if dta_s_index > 0 and features[row, 8] == 0 and p_tos in ['NN', 'NNS']:
             # store first head noun following DT
             features[row, 7] = w_g # head word index
             features[row, 8] = POS.valueByName(p_tos) # head PoS
+            
         
         # store preceding
-        if POS.hasPOSName(p_p_tos):
-            p_w_g_2 = p_w_g
-            p_p_tos_2 = p_p_tos
+        if prev_w[3] > 0:
+            prev_w[4] = prev_w[2]
+            prev_w[5] = prev_w[3]
+            
+        if prev_w[1] > 0:
+            prev_w[2] = prev_w[0]
+            prev_w[3] = prev_w[1]
             
         if POS.hasPOSName(p_tos):
-            p_w_g = w_g
-            p_p_tos = p_tos
+            prev_w[0] = w_g
+            prev_w[1] = POS.valueByName(p_tos)
         
        
     return (features, labels)
