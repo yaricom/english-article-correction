@@ -18,6 +18,8 @@ import data_set as ds
 import config
 import utils
 
+confidence_threshold = 0.
+
 def saveSubmissionResults(f_type,
                           out_file = config.test_reults_path, 
                           labels_file = config.test_labels_prob_path, 
@@ -139,7 +141,10 @@ def predictionsFromTagLabels(text_data, labels):
         for w in s:
             if w.lower() in ['a', 'an', 'the']:
                 max_lab_ind = np.argmax(labels[l_index]) # the most confident prediction
-                row_data.append([max_lab_ind, labels[l_index, max_lab_ind]]) # [class, probability]
+                if labels[l_index, max_lab_ind] > confidence_threshold:
+                    row_data.append([max_lab_ind, labels[l_index, max_lab_ind]]) # [class, probability]
+                else:
+                    row_data.append([0, 0]) # too low confidence
                 l_index += 1 # move to the next prediction label
             else:
                 # ordinary word

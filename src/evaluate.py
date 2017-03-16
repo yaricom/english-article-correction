@@ -11,13 +11,31 @@ def evaluate(text_file, correct_file, submission_file):
         correct = json.load(f)
     with open(submission_file) as f:
         submission = json.load(f)
+    count_fp = {"a" : 0, "an" : 0, "the" : 0}
+    count_fn = {"a" : 0, "an" : 0, "the" : 0}
+    count_tp = {"a" : 0, "an" : 0, "the" : 0}
+    count_tn = {"a" : 0, "an" : 0, "the" : 0}
     data = []
     for sent, cor, sub in zip(text, correct, submission):
         for w, c, s in zip(sent, cor, sub):
-            if w.lower() in ['a', 'an', 'the']:
-                if s is None or s[0] == w.lower():
+            w = w.lower()
+            if w in ['a', 'an', 'the']:
+                if c is not None:
+                    if s is None:
+                        count_fn[w] += 1
+                    elif s[0] != c:
+                        count_fp[s[0]] += 1
+                    else:
+                        count_tp[s[0]] += 1
+                elif s is not None:
+                    count_fp[s[0]] +=1
+                else:
+                    count_tn[w] += 1
+                        
+                if s is None or s[0] == w:
                     s = ['', float('-inf')]
                 data.append((-s[1], s[0] == c, c is not None)) # (confidence, TP, TP + FN)
+                
     data.sort()
     fp2 = 0
     fp = 0
@@ -34,8 +52,9 @@ def evaluate(text_file, correct_file, submission_file):
             score = tp * 1. / all_mistakes
 
     print('tp: %d, fp: %d, fp2: %d, from: %d' % (tp, fp, fp2, len(data)))
-    print( 'target score = %.2f %%' % (score * 100))
-    print( 'accuracy (just for info) = %.2f %%' % (acc * 100))
+    print('FP counts: %s \nFN counts: %s\nTP counts: %s\nTN counts: %s' % (count_fp, count_fn, count_tp, count_tn))
+    print( '>>> target score = %.2f %%' % (score * 100))
+    print( '>>> accuracy (just for info) = %.2f %%' % (acc * 100))
 
 
 if __name__ == '__main__':
