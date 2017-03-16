@@ -19,6 +19,7 @@ from itertools import chain
 from nltk.util import ngrams
 from nltk.probability import FreqDist, ConditionalFreqDist
 
+import config
 
 def build_vocabulary(cutoff, *texts):
     combined_texts = chain(*texts)
@@ -282,18 +283,12 @@ if __name__ == '__main__':
         words.extend(ws)
 
     print("Collected %d ngrams with %d words" % (len(corpora), len(words)))
-    with open("../out/corpora.pkl", "wb") as f:
-        pickle.dump(corpora, f)
+    #with open("../out/corpora.pkl", "wb") as f:
+    #    pickle.dump(corpora, f)
 
     vocab = build_vocabulary(1, words)
     print("Vocabulary built")
     counter = count_ngrams(5, vocab, corpora)
     print("Counter ready")
-    with open("../out/counter.pkl", "wb") as f:
+    with open(config.ngram_model_path, "wb") as f:
         pickle.dump(counter, f)
-    
-    model = LidstoneNgramModel(.9, counter)
-    print("Model ready")
-    
-    prob = model.score('the', ['tax', 'deductible', 'to'])
-    print("Probability: %f" % (prob))
