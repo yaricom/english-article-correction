@@ -31,7 +31,7 @@ def predict(predictor_name, X_test, save_model = False, validate_model = True, s
     """
     corpora = __loadTrainCorpora()
     if predictor_name == 'RandomForest':
-        predictor = RandomForest(n_estimators = 500)
+        predictor = RandomForest(n_estimators = 1500)
     else:
         raise Exception("Unknown predictor name: " + predictor_name)
         

@@ -166,7 +166,7 @@ def extractFeatures(node, sentence, glove, corrections = None):
 # The number of fetures with NGram
 n_features_pos_tags = 14#13#11
 
-def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None):
+def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None, train_on_errors_only = True):
     """
     Extracts features for specified sentence
     Arguments:
@@ -174,6 +174,9 @@ def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None):
         pos_tags: the part-of-speech tags for sentence
         glove: the glove indices map
         corrections: the list of corrections [optional] if building training data set
+        train_on_errors_only: if true than features set generated for training based on error detection (only corrections considered for labels), 
+                              otherwise features set generated for general correct DT articles detection (existing articles in sentences and 
+                              corrections considered for labels)
     Return:
         tuple with array of features for found determiner phrases with articles and
         labels or None
@@ -194,7 +197,7 @@ def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None):
     else:
         labels = None
         
-    prev_w = np.zeros((6,), dtype = 'int') # 4
+    prev_w = np.zeros((6,), dtype = 'int')
     row = -1
     dta_s_index = -1
     next_word_ind = [-1, -1, -1]
@@ -204,10 +207,17 @@ def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None):
         cor = corrections[i] if corrections != None else None
         w = sentence[i].lower()
         if w in ['a', 'an', 'the']:
+            # collect features
             dta_s_index = i
             row += 1
-            # collect features
-            features[row, 2] = w_g # DT glove index
+            
+            # store allegedly incorrect DT article index to features
+            features[row, 2] = w_g
+                        
+            if train_on_errors_only == False:
+                # store sentence DT article class in labels (it may be overwritten by correction later)
+                labels[row] = DT.valueByName(w)
+                
             if prev_w[1] > 0:
                 # add previous if its set
                 features[row, 0] = prev_w[0] # preceding word index
@@ -225,9 +235,11 @@ def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None):
 
             # find index of next feature word
             next_word_ind[0] = dta_s_index + 1
-            # collect label
+                         
+            # store collect label if any (possibly overwrite incorrect one set previously from sentence)
             if cor != None:
                 labels[row] = DT.valueByName(cor)
+                
         elif i == next_word_ind[0]:
             if POS.hasPOSName(p_tos):
                 features[row, 3] = w_g # following word index
@@ -251,6 +263,10 @@ def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None):
             # store first head noun following DT
             features[row, 7] = w_g # head word index
             features[row, 8] = POS.valueByName(p_tos) # head PoS
+            #if p_tos == 'NN':
+            #    features[row, 14] = 1
+            #elif p_tos == 'NNS':
+            #    features[row, 14] = 2
             
         
         # store preceding
@@ -420,7 +436,8 @@ def createWithPosTags(corpus_file, pos_tags_file, glove_file, corrections_file, 
             
         # generate features and labels
         #
-        f, l = extractPosTagsFeatures(pos_tags = pt_list, sentence = t_list, glove = g_list, corrections = s_corr)
+        f, l = extractPosTagsFeatures(pos_tags = pt_list, sentence = t_list, glove = g_list, 
+                                      corrections = s_corr, train_on_errors_only = True)
         if index == 0:
             features = f
         else:
@@ -438,9 +455,9 @@ def createWithPosTags(corpus_file, pos_tags_file, glove_file, corrections_file, 
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
-    parser.add_argument('corpora', help='the name of data coprora to process')
-    parser.add_argument('--f_type', default='tree', 
-                        help='the type of features to be generated [tree, tags]')
+    parser.add_argument('corpora', help = 'the name of data coprora to process')
+    parser.add_argument('--f_type', default = 'tree', 
+                        help = 'the type of features to be generated [tree, tags]')
     args = parser.parse_args()
     
     
