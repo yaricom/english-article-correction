@@ -164,7 +164,7 @@ def extractFeatures(node, sentence, glove, corrections = None):
     return (features, labels)
  
 # The number of fetures with NGram
-n_features_pos_tags = 14#13#11
+n_features_pos_tags = 16#14#13#11
 
 def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None, train_on_errors_only = True):
     """
@@ -198,9 +198,10 @@ def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None, train_
         labels = None
         
     prev_w = np.zeros((6,), dtype = 'int')
+    next_word_ind = [-1, -1, -1]
     row = -1
     dta_s_index = -1
-    next_word_ind = [-1, -1, -1]
+    next_noun_index = -1
     for i in range(len(sentence)):
         p_tos = pos_tags[i]
         w_g = glove[i]
@@ -210,6 +211,7 @@ def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None, train_
             # collect features
             dta_s_index = i
             row += 1
+            next_noun_index = i + 1
             
             # store allegedly incorrect DT article index to features
             features[row, 2] = w_g
@@ -255,18 +257,26 @@ def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None, train_
             if POS.hasPOSName(p_tos):
                 features[row, 5] = w_g # following word + 1 index
                 features[row, 6] = POS.valueByName(p_tos) # following word + 1 TOS
+                next_word_ind[2] = i + 1
             else:
                 # not a tagged POS found
                 next_word_ind[1] += 1
+        elif i == next_word_ind[2] and p_tos in [POS.VB, POS.VBD, POS.VBG, POS.VBN, POS.VBP, POS.VBZ]:
+            if POS.hasPOSName(p_tos):
+                features[row, 14] = w_g # following word + 2 index
+                features[row, 15] = POS.valueByName(p_tos) # following word + 2 TOS
+            else:
+                # not a tagged POS found
+                next_word_ind[2] += 1
             
-        if dta_s_index > 0 and features[row, 8] == 0 and p_tos in ['NN', 'NNS']:
-            # store first head noun following DT
-            features[row, 7] = w_g # head word index
-            features[row, 8] = POS.valueByName(p_tos) # head PoS
-            #if p_tos == 'NN':
-            #    features[row, 14] = 1
-            #elif p_tos == 'NNS':
-            #    features[row, 14] = 2
+        if i == next_noun_index and dta_s_index > 0:
+            # find noun following DTa if DTa is not the first word in the sentence
+            if p_tos in ['NN', 'NNS']:
+                features[row, 7] = w_g # word index
+                features[row, 8] = POS.valueByName(p_tos) # PoS
+            else:
+                # increment index util reach noun
+                next_noun_index += 1
             
         
         # store preceding
