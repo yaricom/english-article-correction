@@ -71,7 +71,7 @@ Table 1 shows a subset of the feature list.
 | 4     | FlW POS | The following word's POS tag |
 | 5     | FlW2    | The second following word's Glove index |
 | 6     | FlW2 POS | The second following word's POS tag |
-| 7     | FlNNs (i > 0) | The following single/plural noun's (where DT is not at the start of sentence) Glove index |
+| 7     | FlNNs (i > 0) | The Glove index of following single/plural noun (where DT is not at the start of sentence) |
 | 8     | FlNNs (i > 0) POS | The following single/plural noun's POS tag |
 | 9     | PrW2 | The second preceding word's Glove index |
 | 10    | PrW2 POS | The second preceding word's POS tag |
