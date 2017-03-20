@@ -100,7 +100,7 @@ The predicted results will be saved in `out` directory as `submission_test.txt` 
 
 ## Conclusions
 
-As result of conducted experiments and analysis, several main findings can be stated:
+As result of conducted experiments and analysis, several main findings can be released:
 1. The provided data corpora have a small number of samples which excludes building of advanced predictive models
 based on neural network methods.
 2. The best predictive performance was achieved with ensemble classifiers based on decision trees architecture.
@@ -114,7 +114,7 @@ FP counts: {'the': 1519, 'an': 77,  'a': 435}
 FN counts: {'the': 1054, 'an': 112, 'a': 597}
 TP counts: {'the': 5114, 'an': 97,  'a': 1142}
 TN counts: {'the': 7093, 'an': 286, 'a': 2084}
->>> target score = 40.28 % (measured with 0.02 false positive rate level)
+>>> target score = 40.28 % (measured at 0.02 false positive rate level)
 >>> accuracy (just for info) = 80.70 %
 ```
 
