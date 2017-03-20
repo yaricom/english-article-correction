@@ -110,9 +110,9 @@ based on neural network methods.
 
 The results for validation corpora by running `evaluate.py` script:
 ```
-FP counts: {'the': 1519, 'an': 77, 	'a': 435} 
+FP counts: {'the': 1519, 'an': 77,  'a': 435} 
 FN counts: {'the': 1054, 'an': 112, 'a': 597}
-TP counts: {'the': 5114, 'an': 97, 	'a': 1142}
+TP counts: {'the': 5114, 'an': 97,  'a': 1142}
 TN counts: {'the': 7093, 'an': 286, 'a': 2084}
 >>> target score = 40.28 % (measured with 0.02 false positive rate level)
 >>> accuracy (just for info) = 80.70 %
