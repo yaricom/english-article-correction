@@ -60,7 +60,7 @@ $ create_data_set.sh
 
 The generated data sets comprise features and labels per specific text corpora. The total of sixteen features considered as important.
 Some of the features represented the words and POS tags found at specific locations adjacent to the determiner (only English articles: a, an, the); 
-others represented the nouns, and verbs that preceded or followed the preposition.
+others represented the nouns, and verbs that preceded or followed the determiner.
 Table 1 shows a subset of the feature list.
 
 | Index | Feature | Description |
@@ -100,13 +100,13 @@ The predicted results will be saved in `out` directory as `submission_test.txt` 
 
 ## Conclusions
 
-As result of provided experiment and analysis several conclusions can be made:
-1. The provided data corpora has small number of samples which excludes building of advanced predictive models
+As result of conducted experiments and analysis, several main findings can be stated:
+1. The provided data corpora have a small number of samples which excludes building of advanced predictive models
 based on neural network methods.
 2. The best predictive performance was achieved with ensemble classifiers based on decision trees architecture.
 3. Among tried decision tree algorithms the best prediction score was achieved with 
 [Random Forest Classifier](http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html)
-4. It was found that optimal number of estimators for classifier is 15000. Other parameters was selected as by default.
+4. It was found that the optimal number of estimators for the classifier is 15000. Other parameters were selected as by default.
 
 The results for validation corpora by running `evaluate.py` script:
 ```
