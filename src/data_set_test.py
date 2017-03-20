@@ -5,7 +5,6 @@ The test cases for data set implementation
 
 @author: yaric
 """
-
 import unittest
 import numpy as np
 
@@ -86,34 +85,14 @@ class TestDataSetMethods(unittest.TestCase):
         self.assertTrue(np.all(labels == labels_test), "Wrong labels generated")
         
         # check features
-        features_test = np.zeros((3, ds.n_features_pos_tags), dtype = "f")
-        features_test[0, 0] = 21176
-        features_test[0, 1] = ds.POS.valueByName('VB')
-        features_test[0, 2] = 2
-        features_test[0, 3] = 15189
-        features_test[0, 4] = ds.POS.valueByName('NN')
-        features_test[0, 5] = 15189
-        features_test[0, 6] = ds.POS.valueByName('NN')
-        
-        features_test[1, 0] = 28
-        features_test[1, 1] = ds.POS.valueByName('IN')
-        features_test[1, 2] = 2
-        features_test[1, 3] = 19803
-        features_test[1, 4] = ds.POS.valueByName('NNP')
-        features_test[1, 5] = 16560
-        features_test[1, 6] = ds.POS.valueByName('NN')
-        
-        features_test[2, 0] = 365
-        features_test[2, 1] = ds.POS.valueByName('VB')
-        features_test[2, 2] = 6
-        features_test[2, 3] = 2062
-        features_test[2, 4] = ds.POS.valueByName('NN')
-        features_test[2, 5] = 2062
-        features_test[2, 6] = ds.POS.valueByName('NN')
-        
-        #print(text_data[s_index])
-        #print(pos_tags[s_index])
-        #print(glove_indices[s_index])
+        """
+        PrW | PrW POS | DTa | FlW | FlW POS | FlW2 | FlW2 POS | FlNNs (i > 0) | FlNNs (i > 0) POS |
+        PrW2 | PrW2 POS | PrW3 (VB, VBD) | PrW3 (VB, VBD) POS | Vowel ([0, 1] | FlW (VB,VBD,VBG,VBN,VBP,VBZ) | FlW (VB,VBD,VBG,VBN,VBP,VBZ) POS
+        """
+        features_test = np.array([
+                [21176.0, 27.0, 2.0, 15189.0, 12.0, 28.0, 6.0, 15189.0, 12.0, 18.0, 18.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                [28.0, 6.0, 2.0, 19803.0, 14.0, 16560.0, 12.0, 16560.0, 12.0, 15189.0, 12.0, 0.0, 0.0, 0.0, 0.0, 0.0], 
+                [365.0, 27.0, 6.0, 2062.0, 12.0, 5.0, 6.0, 2062.0, 12.0, 4.0, 25.0, 0.0, 0.0, 0.0, 0.0, 0.0]], dtype = "f")
         
         select = features == features_test
         if np.all(select) == False:
@@ -199,6 +178,6 @@ class TestDataSetMethods(unittest.TestCase):
         self.assertGreater(features.shape[0], 0, "Empty features returned")
         self.assertEqual(features.shape[1], ds.n_features,
                           "Wrong feature dimensions: %d" % features.shape[1])
-
+    
 if __name__ == '__main__':
     unittest.main()

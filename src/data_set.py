@@ -181,9 +181,9 @@ def extractPosTagsFeatures(sentence, pos_tags, glove, corrections = None, train_
         tuple with array of features for found determiner phrases with articles and
         labels or None
     
-    Features map:    
-    preceding word | and POS| DT | following word | and POS | 
-    second following word | and POS | head | head PoS | second preceding word | and POS |
+    Features map:   
+    PrW | PrW POS | DTa | FlW | FlW POS | FlW2 | FlW2 POS | FlNNs (i > 0) | FlNNs (i > 0) POS |
+    PrW2 | PrW2 POS | PrW3 (VB, VBD) | PrW3 (VB, VBD) POS | Vowel ([0, 1] | FlW (VB,VBD,VBG,VBN,VBP,VBZ) | FlW (VB,VBD,VBG,VBN,VBP,VBZ) POS
     
     """
     articles = 0
@@ -524,7 +524,7 @@ if __name__ == '__main__':
                              corrections_file = config.corrections_test_path,
                              test = True)
         elif args.f_type == 'tags':
-            features, _ = create(corpus_file = config.sentence_test_path, 
+            features, _ = createWithPosTags(corpus_file = config.sentence_test_path, 
                              pos_tags_file = config.pos_tags_test_path,
                              glove_file = config.glove_test_path, 
                              corrections_file = None,
