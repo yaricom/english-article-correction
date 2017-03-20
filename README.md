@@ -31,8 +31,7 @@ The data corpora comprise of following files:
 5. part of speech tags: pos_tags_train.txt, pos_tags_test.txt
 6. GloVe vectors indexes for list of vectors in glove_vectors.txt file: glove_train.txt, glove_test.txt
 
-Before running experiments unpack data corpus archive file `data.zip` into `data` diretory
-
+Before running experiments unpack data corpus archive file `data.zip` into `data` directory
 
 ## Source code structure
 
@@ -57,6 +56,32 @@ To generate data set files execute from terminal in root directory the command:
 ```
 $ create_data_set.sh
 ```
+
+The generated data sets comprise features and labels per specific text corpora. The total of sixteen features considered as important.
+Some of the features represented the words and POS tags found at specific locations adjacent to the determiner (a, an, the); 
+others represented the nouns, and verbs that preceded or followed the preposition.
+Table 1 shows a subset of the feature list.
+
+| Index | Feature | Description |
+| ----- | ------- | ----------- |
+| 0     | PrW     | The preceding word's Glove index|
+| 1     | PrW POS | The preceding word's POS tag |
+| 2     | DTa     | The determiner's (a, an, the) Glove index |
+| 3     | FlW     | The following word's Glove index |
+| 4     | FlW POS | The following word's POS tag |
+| 5     | FlW2    | The second following word's Glove index |
+| 6     | FlW2 POS | The second following word's POS tag |
+| 7     | FlNNs (i > 0) | The following single/plural noun's (where DT is not at the start of sentence) Glove index |
+| 8     | FlNNs (i > 0) POS | The following single/plural noun's POS tag |
+| 9     | PrW2 | The second preceding word's Glove index |
+| 10    | PrW2 POS | The second preceding word's POS tag |
+| 11    | PrW3 (VB, VBD) | The Glove index of third preceding verb (VB, VBD) if present |
+| 12    | PrW3 (VB, VBD) POS | The POS tag of third preceding verb (VB, VBD) if present |
+| 13    | Vowel [0, 1] | The flag to indicate if following word starts with specific vowel |
+| 14    | FlW (VB,VBD,VBG,VBN,VBP,VBZ) | The Glove index of third following verb (VB,VBD,VBG,VBN,VBP,VBZ) if present |
+| 15    | FlW (VB,VBD,VBG,VBN,VBP,VBZ) POS | The POS tag of third following verb (VB,VBD,VBG,VBN,VBP,VBZ) if present |
+
+**Table 1** The features list description
 
 To run prediction with default parameters execute from terminal in root directory the command:
 ```
