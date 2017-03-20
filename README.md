@@ -46,19 +46,20 @@ The source code consists of series of `Python3` scripts encapsulating specific f
 * [predictor.py](src/predictor.py) - the predictive models runner. Encapsulates common functionality which can be applied
 to different predictors.
 * [random_forest_model.py](src/random_forest_model.py) - the predictive model based on `sklearn.ensemble.RandomForestClassifier`
+* [evaluate.py](src/evaluate.py) - the results evaluation script where the target metric is not accuracy but recall level at a specified false positive rate level.
 
 ## Running experiments
 
 Before running experiments with training a model that detects and corrects an incorrect usage of 
 the English article (“a”, “an” or “the”) we need to process raw data corpora files.
 
-To generate data set files execute from terminal in root directory the command:
+To generate data set files execute from the terminal in the root directory following command:
 ```
 $ create_data_set.sh
 ```
 
 The generated data sets comprise features and labels per specific text corpora. The total of sixteen features considered as important.
-Some of the features represented the words and POS tags found at specific locations adjacent to the determiner (a, an, the); 
+Some of the features represented the words and POS tags found at specific locations adjacent to the determiner (only English articles: a, an, the); 
 others represented the nouns, and verbs that preceded or followed the preposition.
 Table 1 shows a subset of the feature list.
 
@@ -66,7 +67,7 @@ Table 1 shows a subset of the feature list.
 | ----- | ------- | ----------- |
 | 0     | PrW     | The preceding word's Glove index|
 | 1     | PrW POS | The preceding word's POS tag |
-| 2     | DTa     | The determiner's (a, an, the) Glove index |
+| 2     | DTa     | The Glove index of determiner (only English articles: a, an, the) |
 | 3     | FlW     | The following word's Glove index |
 | 4     | FlW POS | The following word's POS tag |
 | 5     | FlW2    | The second following word's Glove index |
@@ -83,12 +84,39 @@ Table 1 shows a subset of the feature list.
 
 **Table 1** The features list description
 
-To run prediction with default parameters execute from terminal in root directory the command:
+To run prediction against *validation corpora* with subsequent evaluation against ground truth 
+labels execute from the terminal in the root directory following command:
+```
+$ run_validate.sh
+```
+
+To run prediction against *test corpora* with default parameters execute from the terminal 
+in the root directory following command:
 ```
 $ generate_results.sh
 ```
 
 The predicted results will be saved in `out` directory as `submission_test.txt` file.
+
+## Conclusions
+
+As result of provided experiment and analysis several conclusions can be made:
+1. The provided data corpora has small number of samples which excludes building of advanced predictive models
+based on neural network methods.
+2. The best predictive performance was achieved with ensemble classifiers based on decision trees architecture.
+3. Among tried decision tree algorithms the best prediction score was achieved with 
+[Random Forest Classifier](http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html)
+4. It was found that optimal number of estimators for classifier is 15000. Other parameters was selected as by default.
+
+The results for validation corpora by running `evaluate.py` script:
+```
+FP counts: {'the': 1519, 'an': 77, 	'a': 435} 
+FN counts: {'the': 1054, 'an': 112, 'a': 597}
+TP counts: {'the': 5114, 'an': 97, 	'a': 1142}
+TN counts: {'the': 7093, 'an': 286, 'a': 2084}
+>>> target score = 40.28 % (measured with 0.02 false positive rate level)
+>>> accuracy (just for info) = 80.70 %
+```
 
 ## Authors
 
