@@ -106,7 +106,7 @@ based on neural network methods.
 2. The best predictive performance was achieved with ensemble classifiers based on decision trees architecture.
 3. Among tried decision tree algorithms the best prediction score was achieved with 
 [Random Forest Classifier](http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html)
-4. It was found that the optimal number of estimators for the classifier is 15000. Other parameters were selected as by default.
+4. It was found that the optimal number of estimators for the classifier is 1500. Other parameters were selected as by default.
 
 The results for validation corpora by running `evaluate.py` script:
 ```
